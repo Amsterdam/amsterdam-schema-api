@@ -3,6 +3,7 @@ MAINTAINER datapunt@amsterdam.nl
 
 RUN apt update && apt install --no-install-recommends -y \
     build-essential \
+    libgeos-dev \
     libpq-dev
 COPY requirements* ./
 ARG PIP_REQUIREMENTS=requirements.txt
@@ -17,6 +18,7 @@ FROM python:3.12-slim-bullseye
 RUN useradd -U -r schemaapi
 RUN apt update && apt install --no-install-recommends -y \
     curl \
+    libgdal28 \
     netcat-openbsd
 
 # Copy python build artifacts from builder image
@@ -35,6 +37,7 @@ ENV DJANGO_SETTINGS_MODULE=schema_api.settings \
     UWSGI_MASTER=1
 RUN pip install setuptools  # workaround for missing pkg_resources in opentelemetry
 RUN python manage.py collectstatic --noinput
+RUN python manage.py import_schemas --execute --no-migrate-tables
 
 EXPOSE 8000
 USER schemaapi

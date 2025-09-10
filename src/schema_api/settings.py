@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "schematools.contrib.django",
     "schema_api",
 ]
 
@@ -101,9 +102,9 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 CACHES = {"default": env.cache_url(default="locmemcache://")}
 
-DATABASES = (
-    {}
-)  # "default": env.db_url(default="django.db.backends.sqlite3:///tmp/db.sqlite3")}
+DATABASES = {
+    "default": env.db_url(default="django.db.backends.sqlite3://schema/db.sqlite3")
+}  # "default": env.db_url(default="django.db.backends.sqlite3:///tmp/db.sqlite3")}
 
 locals().update(env.email_url(default="smtp://"))
 
@@ -211,9 +212,7 @@ if CLOUD_ENV.startswith("azure"):
 
     # Microsoft recommended abbreviation for Application Insights is `APPI`
     AZURE_APPI_CONNECTION_STRING = env.str("AZURE_APPI_CONNECTION_STRING")
-    AZURE_APPI_AUDIT_CONNECTION_STRING = env.str(
-        "AZURE_APPI_AUDIT_CONNECTION_STRING", None
-    )
+    AZURE_APPI_AUDIT_CONNECTION_STRING = env.str("AZURE_APPI_AUDIT_CONNECTION_STRING", None)
 
     # Configure OpenTelemetry to use Azure Monitor with the specified connection string
     if AZURE_APPI_CONNECTION_STRING is not None:
@@ -238,11 +237,7 @@ if CLOUD_ENV.startswith("azure"):
             if (
                 span.is_recording()
                 and hasattr(request, "get_token_claims")
-                and (
-                    email := request.get_token_claims.get(
-                        "email", request.get_token_subject
-                    )
-                )
+                and (email := request.get_token_claims.get("email", request.get_token_subject))
             ):
                 span.set_attribute("user.AuthenticatedId", email)
 
@@ -261,9 +256,7 @@ if CLOUD_ENV.startswith("azure"):
         audit_logger_provider = LoggerProvider()
         audit_logger_provider.add_log_record_processor(
             BatchLogRecordProcessor(
-                AzureMonitorLogExporter(
-                    connection_string=AZURE_APPI_AUDIT_CONNECTION_STRING
-                )
+                AzureMonitorLogExporter(connection_string=AZURE_APPI_AUDIT_CONNECTION_STRING)
             )
         )
 
@@ -336,3 +329,7 @@ DATAPUNT_AUTHZ = {
 }
 
 # -- Local app settings
+
+AMSTERDAM_SCHEMA = {"geosearch_disabled_datasets": []}  # Required setting for import schemas
+SCHEMA_URL = env.str("SCHEMA_URL", "https://schemas.data.amsterdam.nl/datasets/")
+SCHEMA_DEFS_URL = env.str("SCHEMA_DEFS_URL", "https://schemas.data.amsterdam.nl/schema")
