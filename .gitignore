@@ -122,3 +122,6 @@ ENV/
 
 # Docker
 docker-compose.override.*.y*ml
+
+# SQLite
+*.sqlite3
