@@ -1,9 +1,9 @@
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.views import View
 from rest_framework import viewsets
-
-from .models import Dataset
-from .serializers import DatasetSerializer
+from rest_framework.response import Response
+from schematools.contrib.django.models import Dataset
 
 
 class RootView(View):
@@ -14,9 +14,18 @@ class RootView(View):
 
 
 class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    This viewset automatically provides `list` and `detail` actions.
-    """
 
-    queryset = Dataset.objects.all()
-    serializer_class = DatasetSerializer
+    def get_queryset(self):
+        return Dataset.objects.all()
+
+    def list(self, request):
+        datasets = self.get_queryset()
+        json_queryset = [dataset.schema.json_data() for dataset in datasets]
+
+        return Response(json_queryset)
+
+    def retrieve(self, request, pk=None):
+        datasets = self.get_queryset()
+        dataset = get_object_or_404(datasets, pk=pk)
+
+        return Response(dataset.schema.json_data())
