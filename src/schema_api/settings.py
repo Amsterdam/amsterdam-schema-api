@@ -310,6 +310,7 @@ REST_FRAMEWORK = dict(
         # Removed HTML rendering, Give pure application/problem+json responses instead.
         # The HTML rendering is not needed and conflicts with the exception_handler code.
         "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
     ],
     UNAUTHENTICATED_USER=None,  # Avoid importing django.contrib.auth.models
     UNAUTHENTICATED_TOKEN=None,

@@ -36,6 +36,7 @@ ENV DJANGO_SETTINGS_MODULE=schema_api.settings \
     UWSGI_CALLABLE=application \
     UWSGI_MASTER=1
 RUN pip install setuptools  # workaround for missing pkg_resources in opentelemetry
+RUN python manage.py migrate
 RUN python manage.py collectstatic --noinput
 RUN python manage.py import_schemas --execute --no-migrate-tables
 
