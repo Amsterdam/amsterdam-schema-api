@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views import View
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from schematools.contrib.django.models import Dataset
 
@@ -33,8 +34,19 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         json_queryset = [simplify_json(dataset.schema) for dataset in queryset]
         return Response(json_queryset)
 
-    def retrieve(self, request, name=None):
+    def retrieve(self, request, name):
         datasets = self.get_queryset()
         dataset = get_object_or_404(datasets, name=name)
 
-        return Response(dataset.schema.json_data())
+        return Response(dataset.schema)
+
+    @action(detail=True, url_path=r"(?P<vmajor>\w+)")
+    def version(self, request, name, vmajor):
+        datasets = self.get_queryset()
+        dataset = get_object_or_404(datasets, name=name)
+        try:
+            dataset_vmajor = dataset.schema.get_version(vmajor)
+        except Exception as e:
+            raise e
+
+        return Response(dataset_vmajor.json_data())
