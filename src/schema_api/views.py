@@ -5,6 +5,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from schematools.contrib.django.models import Dataset
 
+from .utils import simplify_json
+
 
 class RootView(View):
     """Root page of the server."""
@@ -22,15 +24,14 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         if page is not None:
-            json_queryset = [dataset.schema.json_data() for dataset in page]
-
+            json_queryset = [simplify_json(dataset.schema) for dataset in page]
             return self.get_paginated_response(json_queryset)
 
-        json_queryset = [dataset.schema.json_data() for dataset in queryset]
+        json_queryset = [simplify_json(dataset.schema) for dataset in queryset]
         return Response(json_queryset)
 
     def retrieve(self, request, pk=None):
         datasets = self.get_queryset()
         dataset = get_object_or_404(datasets, pk=pk)
 
-        return Response(dataset.schema.json_data(inline_tables=True))
+        return Response(dataset.schema.json_data())
