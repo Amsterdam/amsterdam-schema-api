@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from schematools.contrib.django.models import Dataset
 
-from .utils import simplify_json
+from .utils import filter_on_scope, simplify_json
 
 
 class RootView(View):
@@ -48,5 +48,11 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
             dataset_vmajor = dataset.schema.get_version(vmajor)
         except Exception as e:
             raise e
+
+        # Filter on scope if provided in the request
+        scope = self.request.query_params.get("scope")
+        if scope:
+            scoped_schema = filter_on_scope(dataset_vmajor, scope)
+            return Response(scoped_schema)
 
         return Response(dataset_vmajor.json_data())
