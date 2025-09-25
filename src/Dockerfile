@@ -39,6 +39,8 @@ RUN pip install setuptools  # workaround for missing pkg_resources in openteleme
 RUN python manage.py migrate
 RUN python manage.py collectstatic --noinput
 RUN python manage.py import_schemas --execute --no-migrate-tables
+RUN python manage.py import_scopes
+RUN python manage.py import_publishers
 
 EXPOSE 8000
 USER schemaapi

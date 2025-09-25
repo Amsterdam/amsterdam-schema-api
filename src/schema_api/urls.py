@@ -7,6 +7,8 @@ from . import views
 
 router = DefaultRouter()
 router.register(r"datasets", views.DatasetViewSet, basename="dataset")
+router.register(r"scopes", views.ScopeViewSet, basename="scope")
+router.register(r"publishers", views.PublisherViewSet, basename="publisher")
 
 urlpatterns = [
     path("status/", views.RootView.as_view()),

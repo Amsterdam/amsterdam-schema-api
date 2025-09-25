@@ -125,3 +125,6 @@ docker-compose.override.*.y*ml
 
 # SQLite
 *.sqlite3
+
+# Static files
+web
