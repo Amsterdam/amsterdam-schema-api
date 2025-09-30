@@ -42,9 +42,9 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(dataset.schema)
 
     @action(detail=True, url_path=r"(?P<vmajor>\w+)")
-    def version(self, request, id, vmajor):
+    def version(self, request, name, vmajor):
         datasets = self.get_queryset()
-        dataset = get_object_or_404(datasets, name=id)
+        dataset = get_object_or_404(datasets, name=name)
         try:
             dataset_vmajor = dataset.schema.get_version(vmajor)
         except DatasetVersionNotFound as e:

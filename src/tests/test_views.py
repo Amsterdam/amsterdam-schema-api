@@ -20,6 +20,23 @@ class TestDatasetViews:
         )
         assert response.status_code == 200
 
+    def test_dataset_detail_view_version(self, client, dataset_fixture):
+        response = client.get(
+            reverse("dataset-version", kwargs={"name": "bomen", "vmajor": "v1"}),
+        )
+        assert response.status_code == 200
+        assert response.data["version"] == "1.3.5"
+
+    def test_dataset_detail_view_version_not_found(self, client, dataset_fixture):
+        response = client.get(
+            reverse("dataset-version", kwargs={"name": "bomen", "vmajor": "v3"}),
+        )
+        assert response.status_code == 404
+        assert (
+            response.data["detail"]
+            == "Version v3 not found in dataset bomen. Available versions are ['v1']"
+        )
+
 
 @pytest.mark.django_db
 class TestScopeViews:
