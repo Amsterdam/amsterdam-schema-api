@@ -52,6 +52,23 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(dataset_vmajor.json_data())
 
+    # TODO: Maybe I can combine these version and table actions into one?
+    # Then I don't have to add add scope filtering multiple times
+    @action(detail=True, url_path=r"(?P<vmajor>\w+)/(?P<table_id>\w+)")
+    def table(self, request, name, vmajor, table_id):
+        datasets = self.get_queryset()
+        dataset = get_object_or_404(datasets, name=name)
+        try:
+            dataset_vmajor = dataset.schema.get_version(vmajor)
+            try:
+                dataset_table = dataset_vmajor.schema.get_table_by_id(table_id)
+            except StopIteration:
+                return Response(status=404, data={"detail": f"Table '{table_id}' not found."})
+        except DatasetVersionNotFound as e:
+            return Response(status=404, data={"detail": str(e)})
+
+        return Response(dataset_table.json_data())
+
 
 class ScopeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Scope.objects.all()
