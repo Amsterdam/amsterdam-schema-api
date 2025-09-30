@@ -4,7 +4,7 @@ from django.views import View
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from schematools.contrib.django.models import Dataset, Publisher, Scope
+from schematools.contrib.django.models import Dataset, Profile, Publisher, Scope
 from schematools.exceptions import DatasetVersionNotFound
 
 from .utils import simplify_json
@@ -18,7 +18,7 @@ class RootView(View):
 
 
 class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
-    lookup_field = "id"
+    lookup_field = "name"
 
     def get_queryset(self):
         return Dataset.objects.all()
@@ -35,9 +35,9 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         json_queryset = [simplify_json(dataset.schema) for dataset in queryset]
         return Response(json_queryset)
 
-    def retrieve(self, request, id):
+    def retrieve(self, request, name):
         datasets = self.get_queryset()
-        dataset = get_object_or_404(datasets, name=id)
+        dataset = get_object_or_404(datasets, name=name)
 
         return Response(dataset.schema)
 
@@ -54,13 +54,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ScopeViewSet(viewsets.ReadOnlyModelViewSet):
-
-    # currently, id = TOPDESKBV/FENI
-    # / messes with url path
-    # lookup_field = "name"
-
-    def get_queryset(self):
-        return Scope.objects.all()
+    queryset = Scope.objects.all()
 
     def list(self, request):
         queryset = self.get_queryset()
@@ -80,10 +74,7 @@ class ScopeViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class PublisherViewSet(viewsets.ReadOnlyModelViewSet):
-    lookup_field = "id"
-
-    def get_queryset(self):
-        return Publisher.objects.all()
+    queryset = Publisher.objects.all()
 
     def list(self, request):
         queryset = self.get_queryset()
@@ -95,8 +86,28 @@ class PublisherViewSet(viewsets.ReadOnlyModelViewSet):
         json_queryset = [dataset.schema for dataset in queryset]
         return Response(json_queryset)
 
-    def retrieve(self, request, id):
+    def retrieve(self, request, pk):
         publishers = self.get_queryset()
-        publisher = get_object_or_404(publishers, name=id)
+        publisher = get_object_or_404(publishers, pk=pk)
 
         return Response(publisher.schema)
+
+
+class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Profile.objects.all()
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            json_queryset = [profile.schema for profile in page]
+            return self.get_paginated_response(json_queryset)
+
+        json_queryset = [dataset.schema for dataset in queryset]
+        return Response(json_queryset)
+
+    def retrieve(self, request, pk):
+        profiles = self.get_queryset()
+        profile = get_object_or_404(profiles, pk=pk)
+
+        return Response(profile.schema)

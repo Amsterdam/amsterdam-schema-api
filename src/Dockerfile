@@ -41,6 +41,7 @@ RUN python manage.py collectstatic --noinput
 RUN python manage.py import_schemas --execute --no-migrate-tables
 RUN python manage.py import_scopes
 RUN python manage.py import_publishers
+RUN python manage.py import_profiles
 
 EXPOSE 8000
 USER schemaapi

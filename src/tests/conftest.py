@@ -4,12 +4,18 @@ from pathlib import Path
 
 import pytest
 from django.core.handlers.wsgi import WSGIRequest
+from django.core.management import call_command
 from rest_framework.request import Request
 from rest_framework.test import APIClient, APIRequestFactory
 
 from tests.utils import api_request_with_scopes, to_drf_request
 
 HERE = Path(__file__).parent
+
+
+@pytest.fixture
+def here() -> Path:
+    return HERE
 
 
 @pytest.fixture()
@@ -49,3 +55,31 @@ def common_headers(request) -> dict:
         "X-User": "foobar",
         "X-Task-Description": "unittest",
     }
+
+
+@pytest.fixture()
+def dataset_fixture(here):
+    dataset_path = here / "files/datasets/bomen.json"
+    args = [dataset_path]
+    call_command("import_schemas", *args, dry_run=False)
+
+
+@pytest.fixture()
+def scope_fixture(here):
+    scope_path = here / "files/scopes/fp_mdw.json"
+    args = [scope_path]
+    call_command("import_scopes", *args)
+
+
+@pytest.fixture()
+def publisher_fixture(here):
+    publisher_path = here / "files/publishers/benk.json"
+    args = [publisher_path]
+    call_command("import_publishers", *args)
+
+
+@pytest.fixture()
+def profile_fixture(here):
+    profile_path = here / "files/profiles/brkdataportaalgebruiker.json"
+    args = [profile_path]
+    call_command("import_profiles", *args)
