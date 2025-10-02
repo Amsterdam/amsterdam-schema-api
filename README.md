@@ -42,8 +42,21 @@ export DJANGO_DEBUG=true
 ./manage.py runserver localhost:8000
 ```
 
-## Example Requests
+## Available endpoints
 
+* `/datasets/`
+* `/datasets/<dataset_id>/`
+* `/datasets/<dataset_id>/?scopes=[scope_list]/`
+* `/datasets/<dataset_id>/<vmajor>/`
+* `/datasets/<dataset_id>/<vmajor>/?scopes=[scope_list]/`
+* `/datasets/<dataset_id>/<vmajor><table_id>/`
+* `/datasets/<dataset_id>/<vmajor><table_id>/?scopes=[scope_list]/`
+* `/scopes/`
+* `/scopes/<scope_id>/`
+* `/publishers/`
+* `/publishers/<publisher_id>/`
+* `/profiles/`
+* `/profiles/<profiles_id>/`
 
 ## Environment Settings
 

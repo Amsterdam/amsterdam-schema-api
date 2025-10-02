@@ -66,8 +66,9 @@ def dataset_fixture(here):
 
 @pytest.fixture()
 def scope_fixture(here):
-    scope_path = here / "files/scopes/fp_mdw.json"
-    args = [scope_path]
+    scope_fp_mdw = here / "files/scopes/fp_mdw.json"
+    scope_openbaar = here / "files/scopes/openbaar.json"
+    args = [scope_fp_mdw, scope_openbaar]
     call_command("import_scopes", *args)
 
 

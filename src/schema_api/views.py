@@ -5,7 +5,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from schematools.contrib.django.models import Dataset, Profile, Publisher, Scope
-from schematools.exceptions import DatasetVersionNotFound
+from schematools.exceptions import DatasetTableNotFound, DatasetVersionNotFound
+from schematools.types import DatasetSchema
 
 from .utils import simplify_json
 
@@ -38,93 +39,87 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, name):
         datasets = self.get_queryset()
         dataset = get_object_or_404(datasets, name=name)
+        dataset_schema = dataset.schema
 
-        return Response(dataset.schema)
+        # Scope filtering
+        scopes_param = request.query_params.getlist("scopes")
+        if scopes_param:
 
-    @action(detail=True, url_path=r"(?P<vmajor>\w+)")
+            # Transform url safe scope ids to regular ids
+            scopes = [scope.replace("_", "/").upper() for scope in scopes_param]
+            dataset_schema = DatasetSchema.filter_on_scopes(dataset_schema, scopes)
+
+        return Response(dataset_schema)
+
+    @action(detail=True, url_path=r"(?P<vmajor>v\d{1,3})")
     def version(self, request, name, vmajor):
         datasets = self.get_queryset()
         dataset = get_object_or_404(datasets, name=name)
+        dataset_schema = dataset.schema
+
+        # Scope filtering
+        scopes_param = request.query_params.getlist("scopes")
+        if scopes_param:
+
+            # Transform url safe scope ids to regular ids
+            scopes = [scope.replace("_", "/").upper() for scope in scopes_param]
+            dataset_schema = DatasetSchema.filter_on_scopes(dataset_schema, scopes)
+
         try:
-            dataset_vmajor = dataset.schema.get_version(vmajor)
+            dataset_vmajor = dataset_schema.get_version(vmajor)
         except DatasetVersionNotFound as e:
             return Response(status=404, data={"detail": str(e)})
 
         return Response(dataset_vmajor.json_data())
 
-    # TODO: Maybe I can combine these version and table actions into one?
-    # Then I don't have to add add scope filtering multiple times
-    @action(detail=True, url_path=r"(?P<vmajor>\w+)/(?P<table_id>\w+)")
+    @action(detail=True, url_path=r"(?P<vmajor>v\d{1,3})/(?P<table_id>\w+)")
     def table(self, request, name, vmajor, table_id):
         datasets = self.get_queryset()
         dataset = get_object_or_404(datasets, name=name)
+        dataset_schema = dataset.schema
+
+        # Scope filtering
+        scopes_param = request.query_params.getlist("scopes")
+        if scopes_param:
+
+            # Transform url safe scope ids to regular ids
+            scopes = [scope.replace("_", "/").upper() for scope in scopes_param]
+            dataset_schema = DatasetSchema.filter_on_scopes(dataset_schema, scopes)
+
         try:
-            dataset_vmajor = dataset.schema.get_version(vmajor)
+            dataset_vmajor = dataset_schema.get_version(vmajor)
             try:
-                dataset_table = dataset_vmajor.schema.get_table_by_id(table_id)
-            except StopIteration:
+                dataset_table = dataset_vmajor.get_table_by_id(table_id)
+            except DatasetTableNotFound:
                 return Response(status=404, data={"detail": f"Table '{table_id}' not found."})
         except DatasetVersionNotFound as e:
             return Response(status=404, data={"detail": str(e)})
-
         return Response(dataset_table.json_data())
 
 
-class ScopeViewSet(viewsets.ReadOnlyModelViewSet):
+class BaseViewSet(viewsets.ReadOnlyModelViewSet):
+    def list(self, request):
+        page = self.paginate_queryset(self.queryset)
+        if page is not None:
+            json_queryset = [item.schema for item in page]
+            return self.get_paginated_response(json_queryset)
+
+        json_queryset = [item.schema for item in self.queryset]
+        return Response(json_queryset)
+
+    def retrieve(self, request, pk):
+        item = get_object_or_404(self.queryset, pk=pk)
+
+        return Response(item.schema)
+
+
+class ScopeViewSet(BaseViewSet):
     queryset = Scope.objects.all()
 
-    def list(self, request):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            json_queryset = [scope.schema for scope in page]
-            return self.get_paginated_response(json_queryset)
 
-        json_queryset = [dataset.schema for dataset in queryset]
-        return Response(json_queryset)
-
-    def retrieve(self, request, pk):
-        scopes = self.get_queryset()
-        scope = get_object_or_404(scopes, pk=pk)
-
-        return Response(scope.schema)
-
-
-class PublisherViewSet(viewsets.ReadOnlyModelViewSet):
+class PublisherViewSet(BaseViewSet):
     queryset = Publisher.objects.all()
 
-    def list(self, request):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            json_queryset = [publisher.schema for publisher in page]
-            return self.get_paginated_response(json_queryset)
 
-        json_queryset = [dataset.schema for dataset in queryset]
-        return Response(json_queryset)
-
-    def retrieve(self, request, pk):
-        publishers = self.get_queryset()
-        publisher = get_object_or_404(publishers, pk=pk)
-
-        return Response(publisher.schema)
-
-
-class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
+class ProfileViewSet(BaseViewSet):
     queryset = Profile.objects.all()
-
-    def list(self, request):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            json_queryset = [profile.schema for profile in page]
-            return self.get_paginated_response(json_queryset)
-
-        json_queryset = [dataset.schema for dataset in queryset]
-        return Response(json_queryset)
-
-    def retrieve(self, request, pk):
-        profiles = self.get_queryset()
-        profile = get_object_or_404(profiles, pk=pk)
-
-        return Response(profile.schema)
