@@ -5,9 +5,11 @@ permissions:
 
 on:
   push:
+    branches:
+      - features/**
   pull_request:
     branches:
-    - main
+      - main
 
 jobs:
   pre-commit:
