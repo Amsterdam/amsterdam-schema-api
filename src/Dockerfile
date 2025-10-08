@@ -50,7 +50,6 @@ ENV DJANGO_SETTINGS_MODULE=schema_api.settings \
     UWSGI_MODULE=schema_api.wsgi \
     UWSGI_CALLABLE=application \
     UWSGI_MASTER=1
-RUN python -m sqlite3 -v
 RUN pip install setuptools  # workaround for missing pkg_resources in opentelemetry
 RUN python manage.py collectstatic --noinput
 
