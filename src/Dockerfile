@@ -56,4 +56,4 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 USER schemaapi
-CMD ["uwsgi"]
+ENTRYPOINT ["sh", "/app/entrypoint.sh"]
