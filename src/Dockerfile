@@ -4,7 +4,9 @@ MAINTAINER datapunt@amsterdam.nl
 RUN apt update && apt install --no-install-recommends -y \
     build-essential \
     libgeos-dev \
-    libpq-dev
+    libpq-dev \
+    curl
+
 COPY requirements* ./
 ARG PIP_REQUIREMENTS=requirements.txt
 RUN python -m pip install uwsgi
@@ -17,6 +19,7 @@ RUN python -m pip install --no-cache-dir --no-deps -r $PIP_REQUIREMENTS
 FROM python:3.12-slim-bullseye
 RUN useradd -U -r schemaapi
 RUN apt update && apt install --no-install-recommends -y \
+    build-essential \
     curl \
     libgdal28 \
     netcat-openbsd
@@ -24,6 +27,18 @@ RUN apt update && apt install --no-install-recommends -y \
 # Copy python build artifacts from builder image
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/python3.12/site-packages/
+
+# Update sqlite3
+ENV LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
+RUN mkdir -p /tmp/build/sqlite && \
+    curl -L https://www.sqlite.org/2024/sqlite-autoconf-3470000.tar.gz | \
+        tar xz -C /tmp/build/sqlite --strip-components=1 && \
+    cd /tmp/build/sqlite && \
+    CFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1" ./configure && \
+    make && \
+    make install && \
+    python -c "import sqlite3; assert sqlite3.sqlite_version == '3.47.0'" && \
+    cd / && rm -rf /tmp/build
 
 WORKDIR /app
 COPY . ./
@@ -35,13 +50,9 @@ ENV DJANGO_SETTINGS_MODULE=schema_api.settings \
     UWSGI_MODULE=schema_api.wsgi \
     UWSGI_CALLABLE=application \
     UWSGI_MASTER=1
+RUN python -m sqlite3 -v
 RUN pip install setuptools  # workaround for missing pkg_resources in opentelemetry
-RUN python manage.py migrate
 RUN python manage.py collectstatic --noinput
-RUN python manage.py import_schemas --execute --no-migrate-tables
-RUN python manage.py import_scopes
-RUN python manage.py import_publishers
-RUN python manage.py import_profiles
 
 EXPOSE 8000
 USER schemaapi
