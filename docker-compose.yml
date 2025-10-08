@@ -23,4 +23,4 @@ services:
       DJANGO_DEBUG: 1
     volumes:
       - ./src:/app
-    command: sh docker-entrypoint.sh
+    command: uwsgi --py-auto-reload=1 --enable-threads --lazy-apps --buffer-size=65535
