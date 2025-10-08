@@ -10,7 +10,6 @@ _USE_SECRET_STORE = Path("/mnt/secrets-store").exists()
 # -- Environment
 
 SRC_DIR = Path(__file__).parents[1]
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 CLOUD_ENV = env.str("CLOUD_ENV", "default").lower()
 DEBUG = env.bool("DJANGO_DEBUG", default=(CLOUD_ENV == "default"))
@@ -103,12 +102,7 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 CACHES = {"default": env.cache_url(default="locmemcache://")}
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+DATABASES = {"default": env.db_url(default="django.db.backends.sqlite3://schema/db.sqlite3")}
 
 locals().update(env.email_url(default="smtp://"))
 
