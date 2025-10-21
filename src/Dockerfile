@@ -53,6 +53,9 @@ ENV DJANGO_SETTINGS_MODULE=schema_api.settings \
 RUN pip install setuptools  # workaround for missing pkg_resources in opentelemetry
 RUN python manage.py collectstatic --noinput
 
+# Give user permission to modify sqlite db
+RUN chown schemaapi /app
+
 EXPOSE 8000
 USER schemaapi
 ENTRYPOINT ["sh", "/app/entrypoint.sh"]

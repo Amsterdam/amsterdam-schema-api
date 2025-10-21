@@ -23,15 +23,26 @@ Navigate to `localhost:8000`.
 Create a virtualenv:
 
 ```shell
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 Install all packages in it:
 ```shell
 pip install -U wheel pip
+pip install setuptools
 cd src/
 make install  # installs src/requirements_dev.txt
+```
+
+Execute the following commands to migrate and fill the database:
+
+```shell
+python manage.py migrate
+python manage.py import_schemas --execute --no-migrate-tables
+python manage.py import_scopes
+python manage.py import_publishers
+python manage.py import_profiles
 ```
 
 Set the required environment variables and start the Django application:
@@ -44,19 +55,23 @@ export DJANGO_DEBUG=true
 
 ## Available endpoints
 
-* `/datasets/`
-* `/datasets/<dataset_id>/`
-* `/datasets/<dataset_id>/?scopes=[scope_list]/`
-* `/datasets/<dataset_id>/<vmajor>/`
-* `/datasets/<dataset_id>/<vmajor>/?scopes=[scope_list]/`
-* `/datasets/<dataset_id>/<vmajor><table_id>/`
-* `/datasets/<dataset_id>/<vmajor><table_id>/?scopes=[scope_list]/`
-* `/scopes/`
-* `/scopes/<scope_id>/`
-* `/publishers/`
-* `/publishers/<publisher_id>/`
-* `/profiles/`
-* `/profiles/<profiles_id>/`
+The following URLs are available:
+
+| API                                      | Description                              |
+|------------------------------------------|------------------------------------------|
+| `/datasets/` | All available datasets (without inlined tables)                          |
+| `/datasets/<dataset_id>/` | Dataset with inlined tables             |
+| `/datasets/<dataset_id>/?scopes=[scope_list]/` | Dataset with inlined tables, filtered on scope       |
+| `/datasets/<dataset_id>/<vmajor>/` | Specific major version of dataset with inlined tables     |
+| `/datasets/<dataset_id>/<vmajor>/?scopes=[scope_list]/` | Specific major version of dataset with inlined tables, filtered on scope  |
+| `/datasets/<dataset_id>/<vmajor><table_id>/` | Table of specific major version of dataset |
+| `/datasets/<dataset_id>/<vmajor><table_id>/?scopes=[scope_list]/`| Table of specific major version of dataset, filtered on scope |
+| `/scopes/` | All available scopes |
+| `/scopes/<scope_id>/` | Scope details |
+| `/publishers/` |  All available publishers |
+| `/publishers/<publisher_id>/` | Publisher details |
+| `/profiles/` | All available profiles |
+| `/profiles/<profiles_id>/` | Profile details |
 
 ## Environment Settings
 
