@@ -1,8 +1,9 @@
 -r ./requirements.in
 
 # Packaging
-pur == 7.3.3
-pip-tools==7.5.0
+pur==7.3.3
+setuptools==80.9.0
+pip-tools==7.5.1
 
 # Linting
 pre-commit==4.3.0
