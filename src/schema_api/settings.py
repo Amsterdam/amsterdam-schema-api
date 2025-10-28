@@ -49,7 +49,6 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "authorization_django.authorization_middleware",
 ]
 
 if DEBUG:
@@ -183,11 +182,6 @@ LOGGING = {
         "schema_api": {
             "handlers": ["console"],
             "level": LOG_LEVEL,
-            "propagate": False,
-        },
-        "authorization_django": {
-            "handlers": ["audit_console"],
-            "level": AUDIT_LOG_LEVEL,
             "propagate": False,
         },
         "apikeyclient": {"handlers": ["console"], "propagate": False},
