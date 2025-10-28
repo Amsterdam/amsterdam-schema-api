@@ -1,12 +1,15 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views import View
+from drf_spectacular.utils import extend_schema_view
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from schematools.contrib.django.models import Dataset, Profile, Publisher, Scope
 from schematools.exceptions import DatasetTableNotFound, DatasetVersionNotFound
 from schematools.types import DatasetSchema
+
+import schema_api.openapi.schema as schema
 
 from .utils import simplify_json
 
@@ -24,6 +27,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return Dataset.objects.all()
 
+    @schema.list_datasets_schema
     def list(self, request):
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
@@ -36,6 +40,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         json_queryset = [simplify_json(dataset.schema) for dataset in queryset]
         return Response(json_queryset)
 
+    @schema.retrieve_datasets_schema
     def retrieve(self, request, name):
         datasets = self.get_queryset()
         dataset = get_object_or_404(datasets, name=name)
@@ -51,6 +56,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(dataset_schema)
 
+    @schema.retrieve_datasets_schema_v
     @action(detail=True, url_path=r"(?P<vmajor>v\d{1,3})")
     def version(self, request, name, vmajor):
         datasets = self.get_queryset()
@@ -72,6 +78,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(dataset_vmajor.json_data())
 
+    @schema.retrieve_datasets_schema_v_t
     @action(detail=True, url_path=r"(?P<vmajor>v\d{1,3})/(?P<table_id>\w+)")
     def table(self, request, name, vmajor, table_id):
         datasets = self.get_queryset()
@@ -98,6 +105,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class BaseViewSet(viewsets.ReadOnlyModelViewSet):
+
     def list(self, request):
         page = self.paginate_queryset(self.queryset)
         if page is not None:
@@ -113,13 +121,25 @@ class BaseViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(item.schema)
 
 
+@extend_schema_view(
+    list=schema.list_scope_schema,
+    retrieve=schema.retrieve_scope_schema,
+)
 class ScopeViewSet(BaseViewSet):
     queryset = Scope.objects.all()
 
 
+@extend_schema_view(
+    list=schema.list_publisher_schema,
+    retrieve=schema.retrieve_publisher_schema,
+)
 class PublisherViewSet(BaseViewSet):
     queryset = Publisher.objects.all()
 
 
+@extend_schema_view(
+    list=schema.list_profile_schema,
+    retrieve=schema.retrieve_profile_schema,
+)
 class ProfileViewSet(BaseViewSet):
     queryset = Profile.objects.all()

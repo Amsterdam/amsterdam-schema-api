@@ -1,0 +1,293 @@
+{
+    "type": "dataset",
+    "id": "aardgasverbruik",
+    "title": "aardgasverbruik",
+    "description": "Data van Liander over Standaard Jaarverbruik (SJV) en aantal aansluitingen per postcode-range in de MRA. Het standaard jaarverbruik is het verwachte jaarverbruik voor gas op een aansluiting in een jaar met gemiddelde klimaatomstandigheden (standaardjaar). O&S heeft statistieken over deze data gegenereerd. Het aardgasverbruik van (delen van) enkele gemeentes in de MRA zit niet opgenomen in de gegevens van Liander, aangezien Stedin daar de regionale netbeheerder is van het aardgasnetwerk (Aalsmeer, Amstelveen, Beverwijk, Bloemendaal, Heemskerk, Heemstede, Ouder-Amstel, Uitgeest, Uithoorn en Zandvoort).",
+    "owner": "Liander / Gemeente Amsterdam",
+    "publisher": {
+        "name": "Datateam Basisstatistiek",
+        "id": "STAT",
+        "shortname": "basistat",
+        "tags": {
+            "team": "basisstatistiek",
+            "costcenter": "73800001.4425"
+        },
+        "type": "publisher"
+    },
+    "crs": "EPSG:28992",
+    "creator": "Onderzoek en Statistiek",
+    "auth": [
+        {
+            "type": "scope",
+            "id": "OPENBAAR",
+            "name": "Openbaar",
+            "accessPackages": {
+                "nonProduction": "EM4W-DATA-schemascope-ot-scope_openbaar",
+                "production": "EM4W-DATA-schemascope-p-scope_openbaar"
+            },
+            "owner": {
+                "$ref": "publishers/DADI"
+            }
+        }
+    ],
+    "authorizationGrantor": "basisstatistiek.os@amsterdam.nl",
+    "defaultVersion": "v1",
+    "versions": {
+        "v1": {
+            "status": "beschikbaar",
+            "lifecycleStatus": "stable",
+            "version": "1.0.0",
+            "tables": [
+                {
+                    "id": "mraLiander",
+                    "title": "Data over Standaard Jaarverbruik (SJV) en aantal aansluitingen per postcode-range in de MRA, vanaf 2018. Nieuwe data aan het einde van de maand.",
+                    "type": "table",
+                    "version": "1.0.0",
+                    "lifecycleStatus": "stable",
+                    "schema": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "identifier": "id",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "schema"
+                        ],
+                        "display": "id",
+                        "properties": {
+                            "schema": {
+                                "$ref": "https://schemas.data.amsterdam.nl/schema@v3.1.0#/definitions/schema"
+                            },
+                            "id": {
+                                "title": "id",
+                                "type": "string",
+                                "description": "Unieke identificatie"
+                            },
+                            "dataDate": {
+                                "title": "dataDate",
+                                "type": "string",
+                                "format": "date",
+                                "description": "Datum van de aangeleverde data"
+                            },
+                            "postcodeVanaf": {
+                                "title": "postcodeVanaf",
+                                "type": "string",
+                                "description": "Postcode vanaf (eerste postcode in postcoderange)"
+                            },
+                            "postcodeTotEnMet": {
+                                "title": "postcodeTotEnMet",
+                                "type": "string",
+                                "description": "Postcode t/m (laatste postcode in postcoderange)"
+                            },
+                            "maand": {
+                                "title": "maand",
+                                "type": "integer",
+                                "description": "Maand waarin voorspelling standaard jaarverbruik is gedaan"
+                            },
+                            "jaar": {
+                                "title": "jaar",
+                                "type": "integer",
+                                "description": "Jaar waarin voorspelling standaard jaarverbruik is gedaan"
+                            },
+                            "aantalAansluitingen": {
+                                "title": "aantalAansluitingen",
+                                "type": "integer",
+                                "description": "Aantal aansluitingen"
+                            },
+                            "standaardJaarverbruik": {
+                                "title": "standaardJaarverbruik",
+                                "type": "integer",
+                                "description": "Standaard Jaarverbruik. Het standaard jaarverbruik is het verwachte jaarverbruik voor gas op een aansluiting in een jaar met gemiddelde klimaatomstandigheden (standaardjaar)."
+                            },
+                            "segment": {
+                                "title": "segment",
+                                "type": "string",
+                                "description": "Liander hanteert bij het verbruik van aardgas drie gebruikersgroepen: kleinverbruikers (met een aansluiting voor minder dan 40 m3 aardgas per uur), grootverbruikers (met een aansluiting voor 40 m3 aardgas per uur of meer) en gasmiljonairs (bij een verbruik van meer dan één miljoen m3 aardgas per jaar)."
+                            },
+                            "insertDatetime": {
+                                "title": "insertDatetime",
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "eindgeldigheid": {
+                                "title": "eindgeldigheid",
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "Selectie op eindgeldigheid is null geeft de laatst aangeleverde data."
+                            },
+                            "gemeentecodePcVanaf": {
+                                "title": "gemeentecodePcVanaf",
+                                "type": "string",
+                                "description": "Gemeentecode gekoppeld op postcode vanaf"
+                            },
+                            "gemeentenaamPcVanaf": {
+                                "title": "gemeentenaamPcVanaf",
+                                "type": "string",
+                                "description": "Gemeentenaam gekoppeld op postcode vanaf"
+                            },
+                            "gemeentecodePcTotEnMet": {
+                                "title": "gemeentecodePcTotEnMet",
+                                "type": "string",
+                                "description": "Gemeentecode gekoppeld op postcode t/m"
+                            },
+                            "gemeentenaamPcTotEnMet": {
+                                "title": "gemeentenaamPcTotEnMet",
+                                "type": "string",
+                                "description": "Gemeentenaam gekoppeld op postcode t/m"
+                            },
+                            "gbdBrtCodePcVanaf": {
+                                "title": "gbdBrtCodePcVanaf",
+                                "type": "string",
+                                "description": "Buurt code gekoppeld op postcode vanaf"
+                            },
+                            "gbdBrtCodeCbsPcVanaf": {
+                                "title": "gbdBrtCodeCbsPcVanaf",
+                                "type": "string",
+                                "description": "CBS buurt code gekoppeld op postcode vanaf"
+                            },
+                            "gbdBrtNaamPcVanaf": {
+                                "title": "gbdBrtNaamPcVanaf",
+                                "type": "string",
+                                "description": "Buurt naam gekoppeld op postcode vanaf"
+                            },
+                            "gbdBrtCodePcTotEnMet": {
+                                "title": "gbdBrtCodePcTotEnMet",
+                                "type": "string",
+                                "description": "Buurt code gekoppeld op postcode t/m"
+                            },
+                            "gbdBrtCodeCbsPcTotEnMet": {
+                                "title": "gbdBrtCodeCbsPcTotEnMet",
+                                "type": "string",
+                                "description": "CBS buurt code gekoppeld op postcode t/m"
+                            },
+                            "gbdBrtNaamPcTotEnMet": {
+                                "title": "gbdBrtNaamPcTotEnMet",
+                                "type": "string",
+                                "description": "Buurt naam gekoppeld op postcode t/m"
+                            },
+                            "gbdWijkCodePcVanaf": {
+                                "title": "gbdWijkCodePcVanaf",
+                                "type": "string",
+                                "description": "Wijkcode gekoppeld op postcode vanaf"
+                            },
+                            "gbdWijkCodeCbsPcVanaf": {
+                                "title": "gbdWijkCodeCbsPcVanaf",
+                                "type": "string",
+                                "description": "CBS Wijkcode gekoppeld op postcode vanaf"
+                            },
+                            "gbdWijkNaamPcVanaf": {
+                                "title": "gbdWijkNaamPcVanaf",
+                                "type": "string",
+                                "description": "Wijknaam gekoppeld op postcode vanaf"
+                            },
+                            "gbdWijkCodePcTotEnMet": {
+                                "title": "gbdWijkCodePcTotEnMet",
+                                "type": "string",
+                                "description": "Wijkcode gekoppeld op postcode t/m"
+                            },
+                            "gbdWijkCodeCbsPcTotEnMet": {
+                                "title": "gbdWijkCodeCbsPcTotEnMet",
+                                "type": "string",
+                                "description": "CBS Wijkcode gekoppeld op postcode t/m"
+                            },
+                            "gbdWijkNaamPcTotEnMet": {
+                                "title": "gbdWijkNaamPcTotEnMet",
+                                "type": "string",
+                                "description": "Wijknaam gekoppeld op postcode t/m"
+                            },
+                            "gbdSdlCodePcVanaf": {
+                                "title": "gbdSdlCodePcVanaf",
+                                "type": "string",
+                                "description": "Stadsdeel code gekoppeld op postcode vanaf"
+                            },
+                            "gbdSdlNaamPcVanaf": {
+                                "title": "gbdSdlNaamPcVanaf",
+                                "type": "string",
+                                "description": "Stadsdeel naam gekoppeld op postcode vanaf"
+                            },
+                            "gbdSdlCodePcTotEnMet": {
+                                "title": "gbdSdlCodePcTotEnMet",
+                                "type": "string",
+                                "description": "Stadsdeel code gekoppeld op postcode t/m"
+                            },
+                            "gbdSdlNaamPcTotEnMet": {
+                                "title": "gbdSdlNaamPcTotEnMet",
+                                "type": "string",
+                                "description": "Stadsdeel naam gekoppeld op postcode t/m"
+                            }
+                        }
+                    }
+                },
+                {
+                    "id": "mraStatistiekenPcranges",
+                    "title": "Per postcoderange het gemiddelde aardgasverbruik (SJV) per aansluiting en de verandering in aardgasverbruik (SJV) ten opzichte van het gemiddelde standaard jaarverbruik tussen 2018 en 2021. In deze dataset zit alleen de laatste maand van de laatste datalevering. Te koppelen met aardgasverbruik_mra_liander op id.",
+                    "type": "table",
+                    "version": "1.0.0",
+                    "lifecycleStatus": "stable",
+                    "schema": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "identifier": "id",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "schema"
+                        ],
+                        "display": "id",
+                        "properties": {
+                            "schema": {
+                                "$ref": "https://schemas.data.amsterdam.nl/schema@v3.1.0#/definitions/schema"
+                            },
+                            "id": {
+                                "title": "id",
+                                "type": "string",
+                                "description": "Unieke identificatie"
+                            },
+                            "foreignKeyAardgasverbruikMraLiander": {
+                                "title": "foreignKeyAardgasverbruikMraLiander",
+                                "type": "string",
+                                "description": "Foreign key naar aardgasverbruik_mra_liander",
+                                "relation": "aardgasverbruik:mraLiander"
+                            },
+                            "gemiddeldAardgasverbruikPerAansluiting": {
+                                "title": "gemiddeldAardgasverbruikPerAansluiting",
+                                "type": "number",
+                                "description": "Gemiddeld standaard jaarverbruik per aansluiting"
+                            },
+                            "standaardJaarverbruikGemiddeldeHistorie": {
+                                "title": "standaardJaarverbruikGemiddeldeHistorie",
+                                "type": "number",
+                                "description": "Gemiddeld standaard jaarverbruik over historische jaren"
+                            },
+                            "standaardJaarverbruikHistorieJaar": {
+                                "title": "standaardJaarverbruikHistorieJaar",
+                                "type": "string",
+                                "description": "De jaren waar het gemiddelde standaard jaarverbruik in kolom sjv_gemiddelde_his betrekking op heeft"
+                            },
+                            "veranderingFractie": {
+                                "title": "veranderingFractie",
+                                "type": "number",
+                                "description": "Verandering in standaard jaarverbruik ten opzichte van gemiddelde standaard jaarverbruik van historische jaren"
+                            },
+                            "postcodeArray": {
+                                "title": "postcodeArray",
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "Array met alle postcodes in postcoderange"
+                            },
+                            "postcoderangeGeometrie": {
+                                "$ref": "https://geojson.org/schema/Geometry.json",
+                                "title": "postcoderangeGeometrie",
+                                "description": "Geometrie van postcode ranges"
+                            }
+                        },
+                        "mainGeometry": "postcoderangeGeometrie"
+                    }
+                }
+            ]
+        }
+    },
+    "status": "beschikbaar"
+}

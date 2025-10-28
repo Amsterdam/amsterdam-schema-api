@@ -34,6 +34,7 @@ TIME_ZONE = "Europe/Amsterdam"
 
 INSTALLED_APPS = [
     "django.contrib.staticfiles",
+    "drf_spectacular",
     "corsheaders",
     "rest_framework",
     "schematools.contrib.django",
@@ -310,12 +311,34 @@ REST_FRAMEWORK = dict(
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ],
+    DEFAULT_SCHEMA_CLASS="drf_spectacular.openapi.AutoSchema",
     UNAUTHENTICATED_USER=None,  # Avoid importing django.contrib.auth.models
     UNAUTHENTICATED_TOKEN=None,
     URL_FORMAT_OVERRIDE="_format",  # use ?_format=.. instead of ?format=..
     DEFAULT_PAGINATION_CLASS="rest_framework.pagination.PageNumberPagination",
-    PAGE_SIZE=1,
+    PAGE_SIZE=10,
 )
+
+SPECTACULAR_DESCRIPTION = """Met deze API kun je de schema's van het Amsterdam Schema opvragen.
+De API bevat de schema's voor de datasets die beheerd worden, de scopes, profielen en publishers.
+Het is mogelijk om de losse tabellen van datasets uit te lezen, en om gehele datasets of losse
+tabellen te filteren op een of meerdere meegeven scopes.
+Dan worden alleen de velden getoond waar deze scopes toegang tot hebben."""
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Amsterdam Schema API",
+    "DESCRIPTION": SPECTACULAR_DESCRIPTION,
+    "CONTACT": {"email": "datapunt@amsterdam.nl"},
+    "VERSION": "1.0.0",
+    "LICENSE": {
+        "name": "European Union Public License, version 1.2 (EUPL-1.2)",
+        "url": "https://eupl.eu/1.2/nl/",
+    },
+    "AUTHENTICATION_WHITELIST": None,
+    "PREPROCESSING_HOOKS": [
+        "schema_api.openapi.preprocessors.preprocessing_filter_spec",
+    ],
+}
 
 # -- Amsterdam oauth settings
 
