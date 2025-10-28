@@ -1,6 +1,11 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
+from drf_spectacular.views import (
+    SpectacularJSONAPIView,
+    SpectacularSwaggerView,
+    SpectacularYAMLAPIView,
+)
 from rest_framework.routers import DefaultRouter
 
 from . import views
@@ -14,6 +19,13 @@ router.register(r"profiles", views.ProfileViewSet, basename="profile")
 urlpatterns = [
     path("status/", views.RootView.as_view()),
     path("", include(router.urls)),
+    path(
+        "schema/",
+        SpectacularSwaggerView.as_view(url_name="schema-json"),
+        name="swagger-ui",
+    ),
+    path("openapi.json/", SpectacularJSONAPIView.as_view(), name="schema-json"),
+    path("openapi.yaml/", SpectacularYAMLAPIView.as_view(), name="schema-yaml"),
 ]
 
 if settings.DEBUG:
