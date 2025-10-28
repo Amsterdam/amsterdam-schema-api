@@ -35,7 +35,7 @@ class AutoSchema(_AutoSchema):
 
 
 # Dataset example is loaded as type Datasetschema to apply version and table filtering
-with open("schema_api/openapi/dataset_example.json") as file:
+with open("schema_api/openapi/example_responses/dataset_example.json") as file:
     dataset_example = json.load(file)
     DATASET_EXAMPLE_SCHEMA = DatasetSchema.from_dict(dataset_example)
 
@@ -112,7 +112,7 @@ retrieve_datasets_schema_v_t = extend_schema(
 )
 
 # Load example Scope json response
-with open("schema_api/openapi/scope_example.json") as file:
+with open("schema_api/openapi/example_responses/scope_example.json") as file:
     scope_example = json.load(file)
 
 
@@ -132,7 +132,7 @@ list_scope_schema = extend_schema(
 
 retrieve_scope_schema = extend_schema(
     description="Vraag een specifieke dataset op",
-    summary="Scope",
+    summary="Opgevraagde scope",
     responses={
         200: OpenApiResponse(
             response={"type": "object", "properties": {}},
@@ -145,7 +145,7 @@ retrieve_scope_schema = extend_schema(
 )
 
 # Load example Publisher json response
-with open("schema_api/openapi/publisher_example.json") as file:
+with open("schema_api/openapi/example_responses/publisher_example.json") as file:
     publisher_example = json.load(file)
 
 list_publisher_schema = extend_schema(
@@ -165,7 +165,7 @@ list_publisher_schema = extend_schema(
 
 retrieve_publisher_schema = extend_schema(
     description="Vraag een publisher op",
-    summary="Publisher",
+    summary="Opgevraagde publisher",
     responses={
         200: OpenApiResponse(
             response={"type": "object", "properties": {}},
@@ -178,7 +178,7 @@ retrieve_publisher_schema = extend_schema(
 )
 
 # Load example Profile json response
-with open("schema_api/openapi/profile_example.json") as file:
+with open("schema_api/openapi/example_responses/profile_example.json") as file:
     profile_example = json.load(file)
 
 list_profile_schema = extend_schema(
@@ -197,7 +197,7 @@ list_profile_schema = extend_schema(
 
 retrieve_profile_schema = extend_schema(
     description="Vraag een profiel op",
-    summary="Profiel",
+    summary="Opgevraagd profiel",
     responses={
         200: OpenApiResponse(
             response={"type": "object", "properties": {}},
