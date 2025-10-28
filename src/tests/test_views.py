@@ -15,7 +15,6 @@ class TestDatasetViews:
         response = client.get(reverse("dataset-list"))
         assert response.status_code == 200
 
-    # TODO: Is there a way to add this fixture to the whole class?
     def test_dataset_detail(self, client, dataset_fixture):
         response = client.get(
             reverse("dataset-detail", kwargs={"name": "bomen"}),
