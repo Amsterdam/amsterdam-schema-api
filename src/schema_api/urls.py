@@ -24,8 +24,8 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema-json"),
         name="swagger-ui",
     ),
-    path("openapi.json/", SpectacularJSONAPIView.as_view(), name="schema-json"),
-    path("openapi.yaml/", SpectacularYAMLAPIView.as_view(), name="schema-yaml"),
+    path("openapi.json", SpectacularJSONAPIView.as_view(), name="schema-json"),
+    path("openapi.yaml", SpectacularYAMLAPIView.as_view(), name="schema-yaml"),
 ]
 
 if settings.DEBUG:
