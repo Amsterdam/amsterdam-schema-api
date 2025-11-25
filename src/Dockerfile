@@ -1,6 +1,7 @@
 FROM python:3.12-slim-bullseye AS builder
 MAINTAINER datapunt@amsterdam.nl
 
+RUN sed -i 's+http://archive+http://azure.archive+g' /etc/apt/sources.list /etc/apt/sources.list.d/debian.sources /etc/apt/sources.list.d/ubuntu.sources || true
 RUN apt update && apt install --no-install-recommends -y \
     build-essential \
     libgeos-dev \
@@ -17,6 +18,7 @@ RUN python -m pip install --no-cache-dir --no-deps -r $PIP_REQUIREMENTS
 
 # Start runtime image,
 FROM python:3.12-slim-bullseye
+RUN sed -i 's+http://archive+http://azure.archive+g' /etc/apt/sources.list /etc/apt/sources.list.d/debian.sources /etc/apt/sources.list.d/ubuntu.sources || true
 RUN useradd -U -r schemaapi
 RUN apt update && apt install --no-install-recommends -y \
     build-essential \
