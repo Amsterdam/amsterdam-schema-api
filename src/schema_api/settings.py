@@ -102,7 +102,7 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 CACHES = {"default": env.cache_url(default="locmemcache://")}
 
-DATABASES = {"default": env.db_url(default="django.db.backends.sqlite3://schema/db.sqlite3")}
+DATABASES = {"default": env.db_url(default="django.db.backends.sqlite3:///schema/db.sqlite3")}
 
 locals().update(env.email_url(default="smtp://"))
 
