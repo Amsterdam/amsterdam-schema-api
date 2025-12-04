@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bullseye AS builder
+FROM python:3.13-slim-bullseye AS builder
 MAINTAINER datapunt@amsterdam.nl
 
 RUN apt update && apt install --no-install-recommends -y \
@@ -16,7 +16,7 @@ RUN python -m pip install uwsgi
 RUN python -m pip install --no-cache-dir --no-deps -r $PIP_REQUIREMENTS
 
 # Start runtime image,
-FROM python:3.12-slim-bullseye
+FROM python:3.13-slim-bullseye
 RUN useradd -U -r schemaapi
 RUN apt update && apt install --no-install-recommends -y \
     build-essential \
@@ -26,7 +26,7 @@ RUN apt update && apt install --no-install-recommends -y \
 
 # Copy python build artifacts from builder image
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
-COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/python3.12/site-packages/
+COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 
 # Update sqlite3
 ENV LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
