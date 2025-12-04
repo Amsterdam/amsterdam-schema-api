@@ -136,6 +136,7 @@ def extract_diffs_for_dataset(diffs: dict, update_ds: DatasetSchema) -> list[dic
         field_list = _parse_deepdiff_field(field)
 
         # *** TABLE UPDATE ***
+        # Maybe paste example of deepdiff change here
         if "tables" in field_list and field_list[-1] == "version":
 
             # Only handle minor table updates
@@ -151,18 +152,7 @@ def extract_diffs_for_dataset(diffs: dict, update_ds: DatasetSchema) -> list[dic
 
         # *** LIFECYCLE STATUS UPDATE ***
         if "lifecycleStatus" in field_list:
-            versions_index = field_list.index("versions")
-            ds_vmajor = field_list[versions_index + 1]
-
-            # Get lifecycle status of DatasetVersion
-            dataset_vmajor = update_ds.get_version(ds_vmajor)
-            dataset_id = update_ds.id
-            change_dict["dataset_id"] = dataset_id
-            change_dict["lifecyclestatus"] = dataset_vmajor.lifecycle_status.value
-
-            # Construct object id
-            object_id = f"{dataset_id}/{ds_vmajor}"
-            change_dict["object_id"] = object_id
+            change_dict = _extract_dataset_info(field_list, update_ds, change_dict)
 
             # Set label to 'modify'
             change_dict["label"] = "status"
@@ -178,30 +168,18 @@ def extract_diffs_for_dataset(diffs: dict, update_ds: DatasetSchema) -> list[dic
         change_dict = {}
         field_list = _parse_deepdiff_field(field)
 
+        # Better check if it's table update (may come up when checking all commits)
+        # *** CREATE TABLE ***
         if "tables" in field_list and len(field_list) < 7:
 
             change_dict = _extract_table_info(field_list, update_ds, change_dict)
-
-            # Set label to 'create'
             change_dict["label"] = "create"
 
         # Added version has just ['versions']['v2'] as items
-        # Maybe a etter check?
+        # Maybe a better check?
+        # *** CREATE DATASET VERSION ***
         if len(field_list) == 2:
-            versions_index = field_list.index("versions")
-            ds_vmajor = field_list[versions_index + 1]
-
-            # Get lifecycle status of DatasetVersion
-            dataset_vmajor = update_ds.get_version(ds_vmajor)
-            dataset_id = update_ds.id
-            change_dict["dataset_id"] = dataset_id
-            change_dict["lifecyclestatus"] = dataset_vmajor.lifecycle_status.value
-
-            # Construct object id
-            object_id = f"{dataset_id}/{ds_vmajor}"
-            change_dict["object_id"] = object_id
-
-            # Set label to 'create'
+            change_dict = _extract_dataset_info(field_list, update_ds, change_dict)
             change_dict["label"] = "create"
 
         # Add change to list of updates
@@ -230,6 +208,23 @@ def _extract_table_info(field_list, update_ds, change_dict):
 
     # Construct object id
     object_id = f"{dataset_id}/{ds_vmajor}/{table_id}"
+    change_dict["object_id"] = object_id
+
+    return change_dict
+
+
+def _extract_dataset_info(field_list, update_ds, change_dict):
+    versions_index = field_list.index("versions")
+    ds_vmajor = field_list[versions_index + 1]
+
+    # Get lifecycle status of DatasetVersion
+    dataset_vmajor = update_ds.get_version(ds_vmajor)
+    dataset_id = update_ds.id
+    change_dict["dataset_id"] = dataset_id
+    change_dict["lifecyclestatus"] = dataset_vmajor.lifecycle_status.value
+
+    # Construct object id
+    object_id = f"{dataset_id}/{ds_vmajor}"
     change_dict["object_id"] = object_id
 
     return change_dict
