@@ -295,6 +295,23 @@ def _extract_table_info(field_list: list, update_ds: DatasetSchema) -> dict[str:
     return change_dict
 
 
+def _extract_dataset_info(field_list, update_ds, change_dict):
+    versions_index = field_list.index("versions")
+    ds_vmajor = field_list[versions_index + 1]
+
+    # Get lifecycle status of DatasetVersion
+    dataset_vmajor = update_ds.get_version(ds_vmajor)
+    dataset_id = update_ds.id
+    change_dict["dataset_id"] = dataset_id
+    change_dict["lifecyclestatus"] = dataset_vmajor.lifecycle_status.value
+
+    # Construct object id
+    object_id = f"{dataset_id}/{ds_vmajor}"
+    change_dict["object_id"] = object_id
+
+    return change_dict
+
+
 def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[str:str]:
     """
     Extract necessary fields for a changelog table item
