@@ -128,3 +128,6 @@ docker-compose.override.*.y*ml
 
 # Static files
 web
+
+# tmp files
+*tmp*
