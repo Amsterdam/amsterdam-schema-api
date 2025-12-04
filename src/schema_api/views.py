@@ -74,7 +74,13 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         try:
             dataset_vmajor = dataset_schema.get_version(vmajor)
         except DatasetVersionNotFound:
-            return Response(status=404, data={"detail": "Dataset version not found"})
+            return Response(
+                status=404,
+                data={
+                    "detail": f"Version {vmajor} not found in dataset {dataset_schema.id}."
+                    f" Available versions are {list(dataset_schema.versions)}"
+                },
+            )
 
         return Response(dataset_vmajor.json_data())
 
