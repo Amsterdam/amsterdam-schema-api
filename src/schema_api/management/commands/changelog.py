@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 import subprocess
+from datetime import datetime
 
 from django.core.management import BaseCommand
+from django.db.utils import IntegrityError
+from django.utils.timezone import get_current_timezone
 from schematools.loaders import get_schema_loader
 from schematools.types import DatasetSchema
+
+from schema_api.models import ChangelogItem
 
 CHANGES_DIR = "tmp/changes/"
 
@@ -12,13 +17,8 @@ CHANGES_DIR = "tmp/changes/"
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-
         # Generate change folders for each commit to master
-        # output = subprocess.run(
-        # ["bash", "schema_api/scripts/clone_ams_schema.sh"],
-        # capture_output=True,
-        # )
-        # print(output.stdout.decode("utf-8"))
+        subprocess.run(["bash", "/schema_api/scripts/clone_ams_schema.sh"], check=True)
 
         # Parse change folders into database entries
         # TODO: create changelog model + migration for table
@@ -33,12 +33,13 @@ def extend_changelog_table():
 
     # Load commits into master
     commits = _load_changelog_commits()
+    print(f"Fetched {len(commits)} new commits.")
 
     base_commit = ""
     for c in commits:
 
         # Temp just processing this one change
-        if base_commit and base_commit == "306da010":
+        if base_commit and base_commit == "33f51c1f05372085a4b8ccd11202e129c33965c4":
 
             print(f"Base commit: {base_commit}")
             print(f"Compare commit: {c}")
@@ -64,14 +65,14 @@ def process_commit(base_commit, update_commit):
     """
 
     # Checkout the repo for both commits
-    output = subprocess.check(
-        ["bash", "schema_api/scripts/checkout_commits.sh", base_commit, update_commit],
-        capture_output=True,
+    output = subprocess.run(
+        ["bash", "schema_api/scripts/checkout_commits.sh"],
+        check=True,
     )
 
     # Save the date
-    date = output.stdout.decode("utf-8").strip()
-    print(f"Date: {date}")
+    date = output.decode("utf-8").strip()
+    print(date)
 
     commit_updates = []
 
@@ -87,12 +88,22 @@ def process_commit(base_commit, update_commit):
         db_updates = extract_diffs_for_dataset(diffs, ds)
 
         for change in db_updates:
-            change["hash"] = update_commit
-            change["date"] = date
-
+            change["commit_hash"] = update_commit
+            change["date"] = datetime.strptime(date, "%Y-%m-%d").replace(
+                tzinfo=get_current_timezone()
+            )
             commit_updates.append(change)
 
-    print(commit_updates)
+    # Create db instances for all updates in commit
+    print(f"Adding {len(commit_updates)} changelog updates to database...")
+    for update in commit_updates:
+        try:
+            item = ChangelogItem.objects.create(**update)
+            print(f"* {item}")
+        except IntegrityError:
+            print(f"* {update} already exists in database.")
+            # Or probably log
+    print()
 
 
 def compare_schemas(base_commit, update_commit):
@@ -148,13 +159,13 @@ def extract_diffs_for_dataset(diffs: dict, update_ds: DatasetSchema) -> list[dic
             # E.g. old_v = 1.0.0 and new_v = 1.1.0
             if new_v[0] == old_v[0] and new_v[1] != old_v[1]:
                 change_dict = _extract_table_info(field_list, update_ds, change_dict)
-                change_dict["label"] = "modify"
+                change_dict["label"] = "update"
 
         # *** LIFECYCLE STATUS UPDATE ***
         if "lifecycleStatus" in field_list:
             change_dict = _extract_dataset_info(field_list, update_ds, change_dict)
 
-            # Set label to 'modify'
+            # Set label to 'update'
             change_dict["label"] = "status"
 
         # Add change to list of updates
@@ -204,7 +215,7 @@ def _extract_table_info(field_list, update_ds, change_dict):
     dataset_vmajor = update_ds.get_version(ds_vmajor)
     dataset_id = update_ds.id
     change_dict["dataset_id"] = dataset_id
-    change_dict["lifecyclestatus"] = dataset_vmajor.lifecycle_status.value
+    change_dict["lifecycle_status"] = dataset_vmajor.lifecycle_status.value
 
     # Construct object id
     object_id = f"{dataset_id}/{ds_vmajor}/{table_id}"
@@ -221,7 +232,7 @@ def _extract_dataset_info(field_list, update_ds, change_dict):
     dataset_vmajor = update_ds.get_version(ds_vmajor)
     dataset_id = update_ds.id
     change_dict["dataset_id"] = dataset_id
-    change_dict["lifecyclestatus"] = dataset_vmajor.lifecycle_status.value
+    change_dict["lifecycle_status"] = dataset_vmajor.lifecycle_status.value
 
     # Construct object id
     object_id = f"{dataset_id}/{ds_vmajor}"

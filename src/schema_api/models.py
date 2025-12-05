@@ -1,0 +1,40 @@
+from django.db import models
+
+git_url = "https://github.com/Amsterdam/amsterdam-schema/commit/"
+
+
+class ChangelogItem(models.Model):
+    dataset_id = models.CharField()
+    lifecycle_status = models.CharField()
+    object_id = models.CharField()
+    label = models.CharField()
+    commit_hash = models.CharField()
+    date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [
+            "dataset_id",
+            "lifecycle_status",
+            "object_id",
+            "label",
+            "commit_hash",
+            "date",
+        ]
+
+    def __str__(self):
+        return f"{self.description()} ({self.date})"
+
+    def description(self):
+        # Table updates
+        if len(self.object_id.split("/")) == 3:
+            return f"{self.label.capitalize()} table {self.object_id}."
+
+        # Dataset updates
+        else:
+            if self.label == "status":
+                return (
+                    f"Set status of dataset version {self.object_id} to {self.lifecycle_status}."
+                )
+            else:
+                return f"Create {self.lifecycle_status} dataset version {self.object_id}."

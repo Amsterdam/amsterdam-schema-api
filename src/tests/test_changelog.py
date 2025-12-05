@@ -28,13 +28,13 @@ class TestChangelogCommand:
             "dataset_id": "bomen",
             "lifecyclestatus": "stable",
             "object_id": "bomen/v1/groeiplaatsmedebeheer",
-            "label": "modify",
+            "label": "update",
         }
         assert db_updates[1] == {
             "dataset_id": "bomen",
             "lifecyclestatus": "stable",
             "object_id": "bomen/v2/groeiplaatsmedebeheer",
-            "label": "modify",
+            "label": "update",
         }
 
     def test_changelog_create_table(
@@ -128,13 +128,13 @@ class TestChangelogCommand:
             "dataset_id": "bomen",
             "lifecyclestatus": "stable",
             "object_id": "bomen/v1/groeiplaatsmedebeheer",
-            "label": "modify",
+            "label": "update",
         }
         assert db_updates[1] == {
             "dataset_id": "bomen",
             "lifecyclestatus": "stable",
             "object_id": "bomen/v2/groeiplaatsmedebeheer",
-            "label": "modify",
+            "label": "update",
         }
         assert db_updates[2] == {
             "dataset_id": "bomen",
