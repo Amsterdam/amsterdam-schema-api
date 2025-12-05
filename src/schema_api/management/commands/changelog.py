@@ -303,7 +303,7 @@ def _extract_dataset_info(field_list, update_ds, change_dict):
     dataset_vmajor = update_ds.get_version(ds_vmajor)
     dataset_id = update_ds.id
     change_dict["dataset_id"] = dataset_id
-    change_dict["lifecyclestatus"] = dataset_vmajor.lifecycle_status.value
+    change_dict["lifecycle_status"] = dataset_vmajor.lifecycle_status.value
 
     # Construct object id
     object_id = f"{dataset_id}/{ds_vmajor}"
