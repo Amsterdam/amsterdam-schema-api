@@ -77,6 +77,13 @@ def _get_most_recent_commit() -> str:
     return start_commit
 
 
+def get_most_recent_commit():
+    commits = ChangelogItem.objects.order_by("-committed_at")
+    if commits:
+        return commits[0].commit_hash
+    return "306da010dca57c4828b7917e88089aea279452a0"
+
+
 def extend_changelog_table():
     """
     Main function: writes changelog updates for all commits into Amsterdam Schema
@@ -116,6 +123,10 @@ def extend_changelog_table():
     # Remove the whole tmp folder
     dir_path = os.path.join(os.getcwd(), "tmp")
     shutil.rmtree(dir_path)
+
+    # Remove the whole tmp folder
+    # dir_path = os.path.join(os.getcwd(), "tmp")
+    # shutil.rmtree(dir_path)
 
 
 def _load_changelog_commits():
