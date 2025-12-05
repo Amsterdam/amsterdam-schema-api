@@ -63,10 +63,11 @@ def process_commit(base_commit, update_commit):
     """
     Docstring
     """
-
+    args = [str(base_commit), str(update_commit)]
     # Checkout the repo for both commits
     output = subprocess.run(
-        ["bash", "schema_api/scripts/checkout_commits.sh"],
+        ["bash", "schema_api/scripts/checkout_commits.sh", *args],
+        shell=False,
         check=True,
     )
 
