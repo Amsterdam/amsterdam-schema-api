@@ -26,13 +26,13 @@ class TestChangelogCommand:
         assert len(db_updates) == 2
         assert db_updates[0] == {
             "dataset_id": "bomen",
-            "lifecyclestatus": "stable",
+            "lifecycle_status": "stable",
             "object_id": "bomen/v1/groeiplaatsmedebeheer",
             "label": "update",
         }
         assert db_updates[1] == {
             "dataset_id": "bomen",
-            "lifecyclestatus": "stable",
+            "lifecycle_status": "stable",
             "object_id": "bomen/v2/groeiplaatsmedebeheer",
             "label": "update",
         }
@@ -54,13 +54,13 @@ class TestChangelogCommand:
         assert len(db_updates) == 2
         assert db_updates[0] == {
             "dataset_id": "bomen",
-            "lifecyclestatus": "stable",
+            "lifecycle_status": "stable",
             "object_id": "bomen/v1/stamgegevens",
             "label": "create",
         }
         assert db_updates[1] == {
             "dataset_id": "bomen",
-            "lifecyclestatus": "stable",
+            "lifecycle_status": "stable",
             "object_id": "bomen/v2/stamgegevens",
             "label": "create",
         }
@@ -82,7 +82,7 @@ class TestChangelogCommand:
         assert len(db_updates) == 1
         assert db_updates[0] == {
             "dataset_id": "bomen",
-            "lifecyclestatus": "experimental",
+            "lifecycle_status": "experimental",
             "object_id": "bomen/v3",
             "label": "create",
         }
@@ -104,7 +104,7 @@ class TestChangelogCommand:
         assert len(db_updates) == 1
         assert db_updates[0] == {
             "dataset_id": "bomen",
-            "lifecyclestatus": "stable",
+            "lifecycle_status": "stable",
             "object_id": "bomen/v2",
             "label": "status",
         }
@@ -126,19 +126,19 @@ class TestChangelogCommand:
         assert len(db_updates) == 3
         assert db_updates[0] == {
             "dataset_id": "bomen",
-            "lifecyclestatus": "stable",
+            "lifecycle_status": "stable",
             "object_id": "bomen/v1/groeiplaatsmedebeheer",
             "label": "update",
         }
         assert db_updates[1] == {
             "dataset_id": "bomen",
-            "lifecyclestatus": "stable",
+            "lifecycle_status": "stable",
             "object_id": "bomen/v2/groeiplaatsmedebeheer",
             "label": "update",
         }
         assert db_updates[2] == {
             "dataset_id": "bomen",
-            "lifecyclestatus": "experimental",
+            "lifecycle_status": "experimental",
             "object_id": "bomen/v3",
             "label": "create",
         }
