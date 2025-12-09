@@ -9,7 +9,7 @@ from django.core.management import BaseCommand
 from django.db.utils import IntegrityError
 from django.utils.timezone import get_current_timezone
 from schematools.loaders import get_schema_loader
-from schematools.types import DatasetSchema
+from schematools.types import DatasetSchema, SemVer
 
 from schema_api.models import ChangelogItem
 
@@ -20,52 +20,54 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        start_commit = get_most_recent_commit()
+        # Start from a fixed commit or the latest update
+        start_commit = _get_most_recent_commit()
         # start_commit = "2ae98c5d4fb66ae4469924c8c16c8b77f216ed39"
 
-        # Extract all commits into master
+        # Clone Amsterdam Schema repo and fetch all commits into master
         subprocess.run(  # noqa: S603
             ["bash", "schema_api/scripts/clone_ams_schema.sh", start_commit], check=True
         )
 
+        # Write updates to Changelog table
         extend_changelog_table()
-
-
-def get_most_recent_commit():
-    commits = ChangelogItem.objects.order_by("-committed_at")
-    if commits:
-        return commits[0].commit_hash
-    return "306da010dca57c4828b7917e88089aea279452a0"
 
 
 def extend_changelog_table():
     """
-    Docstring
+    Main function: writes changelog updates for all commits into Amsterdam Schema
     """
 
-    # Load commits into master
+    # Load all commits and loop through them to extract info
     commits = _load_changelog_commits()
-    print(f"Fetched {len(commits)} new commits.")
 
-    base_commit = ""
-    for c in commits:
-        if base_commit:
-            print("****************************")
-            print(f"Base commit: {base_commit}")
-            print(f"Compare commit: {c}")
-            print()
+    # TODO: maybe there is a way to exit the command on this condition,
+    # instead of this if/else structure?
+    if len(commits) < 2:
+        print("No new commits to extract updates from. Exiting command now.")
 
-            # Extract changelog updates from update commit
-            process_commit(base_commit, c)
+    else:
+        print(f"Fetched {len(commits)} new commits.")
 
-            # Remove archived repos of commits
-            dir_path = os.path.join(os.getcwd(), "tmp/changes")
-            for filename in os.listdir(dir_path):
-                file_path = os.path.join(dir_path, filename)
-                shutil.rmtree(file_path)
+        base_commit = ""
+        for update_commit in commits:
+            if base_commit:
+                print("****************************")
+                print(f"Base commit: {base_commit}")
+                print(f"Compare commit: {update_commit}")
+                print()
 
-        # Update commit will be base for next commit
-        base_commit = c
+                # Extract changelog updates from update commit
+                process_commit(base_commit, update_commit)
+
+                # Remove archived repos of commits
+                dir_path = os.path.join(os.getcwd(), "tmp/changes")
+                for commit_dir in os.listdir(dir_path):
+                    full_commit_dir = os.path.join(dir_path, commit_dir)
+                    shutil.rmtree(full_commit_dir)
+
+            # Update commit will be base for next commit
+            base_commit = update_commit
 
     # Remove the whole tmp folder
     # dir_path = os.path.join(os.getcwd(), "tmp")
@@ -81,10 +83,10 @@ def _load_changelog_commits():
 
 def process_commit(base_commit, update_commit):
     """
-    Docstring
+    Check out 2 commits, extract the differences and write updates to Changelog table.
     """
     args = [str(base_commit), str(update_commit)]
-    # Checkout the repo for both commits
+    # Checkout the repo for both commits and return the commit timestamp
     output = subprocess.run(  # noqa: S603
         ["bash", "schema_api/scripts/checkout_commits.sh", *args],
         check=True,
@@ -93,43 +95,37 @@ def process_commit(base_commit, update_commit):
     )
 
     # Save the date
-    date = output.stdout.strip()
-    commit_updates = []
+    timestamp = output.stdout.strip()
 
     # Extract differences between schemas
     dataset_diffs = compare_schemas(base_commit, update_commit)
+
     for ds in dataset_diffs:
-        diffs = dataset_diffs[ds]
+        db_updates = dataset_diffs[ds]
 
-        # Misschien lijst met database updates teruggeven? Datum is hetzelfde voor allemaal.
-        # Of datum meegeven
-        # Maybe extend the updates in this list instead of creating a new one
-        # Maybe add this in compare schemas, now we're looping through the datasets twice
-        db_updates = extract_diffs_for_dataset(diffs, ds)
+        for update in db_updates:
 
-        for change in db_updates:
-            change["commit_hash"] = update_commit
-            change["committed_at"] = datetime.strptime(date, "%Y-%m-%d %H:%M:%S").replace(
+            # Add commit hash and commit timestamp
+            print(f"Adding {len(db_updates)} changelog update(s) to database...")
+
+            update["commit_hash"] = update_commit
+            update["committed_at"] = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").replace(
                 tzinfo=get_current_timezone()
             )
-            commit_updates.append(change)
 
-    # Create db instances for all updates in commit
-    print(f"Adding {len(commit_updates)} changelog update(s) to database...")
-    for update in commit_updates:
-        try:
-            item = ChangelogItem(**update)
-            print(f"* {item}")
-            item.save()
-        except IntegrityError:
-            print(f"* {update} already exists in database.")
-            # Or probably log
-    print()
+            # Create db instance of update (only allow unique entries)
+            try:
+                item = ChangelogItem(**update)
+                print(f"* {item}")
+                item.save()
+            except IntegrityError:
+                print(f"* {update} already exists in database.")
+                # Or probably log
 
 
-def compare_schemas(base_commit, update_commit):
+def compare_schemas(base_commit: str, update_commit: str) -> dict[str:list]:
     """
-    Docstring
+    Extract DeepDiff differences between 2 commits for all dataset schemas.
     """
 
     base_path = CHANGES_DIR + base_commit + "/datasets"
@@ -140,91 +136,119 @@ def compare_schemas(base_commit, update_commit):
 
     dataset_diffs = {}
 
-    # Loop through all datasets to get the diffs
+    # Extract diffs for all datasets
     for id in update_schema:
         update_ds = update_schema[id]
 
-        # This checks for added/modified tables in datasets
+        # Check for diffs in existing datasets
         if id in base_schema:
             base_ds = base_schema[id]
 
-            # Make this a function that can be tested
+            # Extract changelog updates from diffs
             diffs = base_ds.get_diffs(update_ds)
 
-            # Save diffs (if there are any)
             if diffs:
-                dataset_diffs[update_ds] = diffs
+                db_updates = extract_diffs_for_dataset(diffs, update_ds)
+                dataset_diffs[update_ds] = db_updates
+
+        # Also add update for completely new datasets?
+        else:
+            pass
 
     return dataset_diffs
 
 
-def extract_diffs_for_dataset(diffs: dict, update_ds: DatasetSchema) -> list[dict]:
-    """ """
+def extract_diffs_for_dataset(diffs: dict[str:list], update_ds: DatasetSchema) -> list[dict]:
+    """
+    Parse DeepDiff output and extract info for Changelog Item instances
+    """
     db_updates = []
 
+    # Extract updates for modified tables and dataset lifecycle status updates
     modifications = diffs.get("values_changed", [])
     for field in modifications:
-        change_dict = {}
         field_list = _parse_deepdiff_field(field)
 
-        # *** TABLE UPDATE ***
-        # Maybe paste example of deepdiff change here
+        # *** UPDATE TABLE UPDATE ***
         if "tables" in field_list and field_list[-1] == "version":
 
             # Only handle minor table updates
-            # Check schema tools if is there is a tool for this
             version_update = modifications[field]
-            new_v = version_update["new_value"].split(".")
-            old_v = version_update["old_value"].split(".")
+            old_v = SemVer(version_update["old_value"])
+            new_v = SemVer(version_update["new_value"])
 
             # E.g. old_v = 1.0.0 and new_v = 1.1.0
-            if new_v[0] == old_v[0] and new_v[1] != old_v[1]:
-                change_dict = _extract_table_info(field_list, update_ds, change_dict)
+            if new_v.major == old_v.major and new_v.minor > old_v.minor:
+                change_dict = _extract_table_info(field_list, update_ds)
                 change_dict["label"] = "update"
+                db_updates.append(change_dict)
 
-        # *** LIFECYCLE STATUS UPDATE ***
-        if "lifecycleStatus" in field_list:
-            change_dict = _extract_dataset_info(field_list, update_ds, change_dict)
-
-            # Set label to 'update'
+        # *** UPDATE LIFECYCLE STATUS ***
+        if field_list[-1] == "lifecycleStatus":
+            change_dict = _extract_dataset_info(field_list, update_ds)
             change_dict["label"] = "status"
-
-        # Add change to list of updates
-        if change_dict:
             db_updates.append(change_dict)
 
-    # Additions update
-    additions = get_create_updates(diffs)
-
+    # Extract updates for added tables and added dataset versions
+    additions = _get_create_updates(diffs)
     for field in additions:
         change_dict = {}
         field_list = _parse_deepdiff_field(field)
 
-        # Better check if it's table update (may come up when checking all commits)
         # *** CREATE TABLE ***
-        if "tables" in field_list and len(field_list) < 7:
-
-            change_dict = _extract_table_info(field_list, update_ds, change_dict)
+        if field_list[-2] == "tables":
+            change_dict = _extract_table_info(field_list, update_ds)
             change_dict["label"] = "create"
+            db_updates.append(change_dict)
 
-        # Added version has just ['versions']['v2'] as items
-        # Maybe a better check?
         # *** CREATE DATASET VERSION ***
-        if len(field_list) == 2:
-            change_dict = _extract_dataset_info(field_list, update_ds, change_dict)
+        if field_list[-2] == "versions":
+            change_dict = _extract_dataset_info(field_list, update_ds)
             change_dict["label"] = "create"
-
-        # Add change to list of updates
-        if change_dict:
             db_updates.append(change_dict)
 
     return db_updates
 
 
-def _extract_table_info(field_list, update_ds, change_dict):
-    # From here can be made a function, exactly reused by create table
-    # Check which variables are needed
+def _get_most_recent_commit() -> str:
+    """
+    Gets most recent commit from the db table as a starting point
+    to generate new updates from. Use the hard coded commit when
+    running this command when changelog table is empty.
+    """
+    commits = ChangelogItem.objects.order_by("-committed_at")
+    if commits:
+        return commits[0].commit_hash
+    return "306da010dca57c4828b7917e88089aea279452a0"
+
+
+def _load_changelog_commits():
+    """
+    Load historical commits into master branch of Amsterdam Schema
+    """
+    with open("tmp/commits.txt") as f:
+        return [commit.strip("\n") for commit in f.readlines()]
+
+
+def _parse_deepdiff_field(field: str) -> list[str]:
+    """
+    Parses a string of dict keys into a list of dict keys
+    """
+
+    # Clean off DeepDiff prefix 'root'
+    if field.startswith("root"):
+        field = field[4:]
+    field = field.replace("]", "").replace("'", "")
+    field_list = field.split("[")
+    return [value for value in field_list if value]
+
+
+def _extract_table_info(field_list: list, update_ds: DatasetSchema) -> dict[str:str]:
+    """
+    Extract necessary fields for a changelog table item
+    """
     # Get table id (name)
+    change_dict = {}
     tables_index = field_list.index("tables")
     table_index = int(field_list[tables_index + 1])
     table_id = update_ds.tables[table_index].id
@@ -245,7 +269,11 @@ def _extract_table_info(field_list, update_ds, change_dict):
     return change_dict
 
 
-def _extract_dataset_info(field_list, update_ds, change_dict):
+def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[str:str]:
+    """
+    Extract necessary fields for a changelog table item
+    """
+    change_dict = {}
     versions_index = field_list.index("versions")
     ds_vmajor = field_list[versions_index + 1]
 
@@ -262,21 +290,13 @@ def _extract_dataset_info(field_list, update_ds, change_dict):
     return change_dict
 
 
-def get_create_updates(diffs):
+def _get_create_updates(diffs: dict[str:list]) -> list[str]:
+    """
+    Add all types of addition updates (and addition updates only) from DeepDiff to one list
+    """
     additions = []
     for key, value in diffs.items():
         if "added" in key:
             for key in value:
                 additions.append(key)
     return additions
-
-
-def _parse_deepdiff_field(field):
-    """
-    Parses a string of dict keys into a list of dict keys
-    """
-    if field.startswith("root"):
-        field = field[4:]
-    field = field.replace("]", "").replace("'", "")
-    field_list = field.split("[")
-    return [value for value in field_list if value]
