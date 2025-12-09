@@ -299,7 +299,11 @@ def _extract_table_info(field_list: list, update_ds: DatasetSchema) -> dict[str:
     return change_dict
 
 
-def _extract_dataset_info(field_list, update_ds, change_dict):
+def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[str:str]:
+    """
+    Extract necessary fields for a changelog table item
+    """
+    change_dict = {}
     versions_index = field_list.index("versions")
     ds_vmajor = field_list[versions_index + 1]
 
