@@ -59,4 +59,4 @@ RUN mkdir -p /app/schema
 
 EXPOSE 8000
 USER schemaapi
-ENTRYPOINT ["sh", "/app/entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
