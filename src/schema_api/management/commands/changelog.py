@@ -110,6 +110,10 @@ def extend_changelog_table():
     dir_path = os.path.join(os.getcwd(), "tmp")
     shutil.rmtree(dir_path)
 
+    # Remove the whole tmp folder
+    # dir_path = os.path.join(os.getcwd(), "tmp")
+    # shutil.rmtree(dir_path)
+
 
 def _load_changelog_commits():
     """Load historical commits into master branch of Amsterdam Schema"""
