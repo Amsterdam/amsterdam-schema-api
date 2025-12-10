@@ -12,7 +12,6 @@ mkdir ../changes/${update_commit}
 git archive "$base_commit" | tar -x -C "../changes/${base_commit}"
 git archive "$update_commit" | tar -x -C "../changes/${update_commit}"
 
-
-# Return the date on which the update commit was merged
-date=$(git show -s --date=format:'%Y-%m-%d' --no-patch --format=%cd $update_commit)
+# Return the date on which the update commit was merged (format-local means in timezone of current user)
+date=$(git show -s --date=format-local:'%Y-%m-%d %H:%M:%S' --no-patch --format=%cd $update_commit)
 echo "$date"

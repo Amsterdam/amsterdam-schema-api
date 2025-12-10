@@ -1,22 +1,25 @@
 # Clone Amsterdam Schema repo
 
-#mkdir tmp
-#cd tmp
-#mkdir changes
-#echo "Cloning Amsterdam Schema repo..."
-#git clone git@github.com:Amsterdam/amsterdam-schema.git
-#echo "Done!"
+start_commit=$1
+end_commit="HEAD"
+echo "Generating changelog from commit:"
+echo $start_commit
+echo ""
+
+mkdir tmp
+cd tmp
+mkdir changes
+echo "Cloning Amsterdam Schema repo..."
+git clone git@github.com:Amsterdam/amsterdam-schema.git
+echo "Done!"
 
 
 # Fetch history of commits into master (oldest to newest)
-cd tmp/amsterdam-schema
-git pull
-git fetch origin master
+cd amsterdam-schema
+#git pull
+#git fetch origin master
 
-# TODO: define start commit to start changelog from
-# as argument for management command
-# Handy for where to start from when updating the changelog database
-commits=$(git log --first-parent master -30 --pretty=format:"%H")
+commits=$(git log $start_commit^..$end_commit --first-parent master --pretty=format:"%H")
 
 # Store commits in an actual array
 original_array=()
