@@ -1,7 +1,5 @@
 #!/bin/bash
-set -ex
-
-echo "Entrypoint started" >> /tmp/entrypoint.log
+set -e
 
 echo "--- Run migrate"
 python manage.py migrate
@@ -19,4 +17,11 @@ echo "--- Import profiles"
 python manage.py import_profiles
 
 echo "--- Start uWSGI..."
-exec uwsgi
+exec uwsgi \
+    --py-auto-reload=1 \
+    --enable-threads \
+    --lazy-apps \
+    --buffer-size=65535 \
+    --single-interpreter \
+    --need-app \
+    --memory-report
