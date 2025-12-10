@@ -56,6 +56,7 @@ RUN python manage.py collectstatic --noinput
 # Give user permission to modify sqlite db
 RUN chown schemaapi /app/
 RUN mkdir -p /app/schema
+RUN chown schemaapi /app/*
 
 EXPOSE 8000
 USER schemaapi
