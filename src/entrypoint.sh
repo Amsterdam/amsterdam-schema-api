@@ -1,5 +1,7 @@
 #!/bin/bash
-set -e
+set -ex
+
+echo "Entrypoint started" >> /tmp/entrypoint.log
 
 echo "--- Run migrate"
 python manage.py migrate
