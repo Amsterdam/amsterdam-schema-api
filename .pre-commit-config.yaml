@@ -38,8 +38,6 @@ repos:
         - --show-fixes
         - --config=pyproject.toml
         - --exit-non-zero-on-fix
-        - --ignore
-        - S603
   - repo: https://github.com/psf/black
     rev: 24.4.2
     hooks:
