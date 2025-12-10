@@ -9,7 +9,7 @@ class ChangelogItem(models.Model):
     object_id = models.CharField()
     label = models.CharField()
     commit_hash = models.CharField()
-    date = models.DateField()
+    committed_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -19,11 +19,11 @@ class ChangelogItem(models.Model):
             "object_id",
             "label",
             "commit_hash",
-            "date",
+            "committed_at",
         ]
 
     def __str__(self):
-        return f"{self.description()} ({self.date})"
+        return f"{self.description()} ({self.committed_at})"
 
     def description(self):
         # Table updates

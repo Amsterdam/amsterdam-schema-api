@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import shutil
 import subprocess
 from datetime import datetime
 
@@ -17,13 +19,23 @@ CHANGES_DIR = "tmp/changes/"
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        # Generate change folders for each commit to master
-        subprocess.run(["bash", "/schema_api/scripts/clone_ams_schema.sh"], check=True)
 
-        # Parse change folders into database entries
-        # TODO: create changelog model + migration for table
+        start_commit = get_most_recent_commit()
+        # start_commit = "2ae98c5d4fb66ae4469924c8c16c8b77f216ed39"
+
+        # Extract all commits into master
+        subprocess.run(  # noqa: S603
+            ["bash", "schema_api/scripts/clone_ams_schema.sh", start_commit], check=True
+        )
 
         extend_changelog_table()
+
+
+def get_most_recent_commit():
+    commits = ChangelogItem.objects.order_by("-committed_at")
+    if commits:
+        return commits[0].commit_hash
+    return "306da010dca57c4828b7917e88089aea279452a0"
 
 
 def extend_changelog_table():
@@ -37,10 +49,8 @@ def extend_changelog_table():
 
     base_commit = ""
     for c in commits:
-
-        # Temp just processing this one change
-        if base_commit and base_commit == "33f51c1f05372085a4b8ccd11202e129c33965c4":
-
+        if base_commit:
+            print("****************************")
             print(f"Base commit: {base_commit}")
             print(f"Compare commit: {c}")
             print()
@@ -48,8 +58,18 @@ def extend_changelog_table():
             # Extract changelog updates from update commit
             process_commit(base_commit, c)
 
+            # Remove archived repos of commits
+            dir_path = os.path.join(os.getcwd(), "tmp/changes")
+            for filename in os.listdir(dir_path):
+                file_path = os.path.join(dir_path, filename)
+                shutil.rmtree(file_path)
+
         # Update commit will be base for next commit
         base_commit = c
+
+    # Remove the whole tmp folder
+    # dir_path = os.path.join(os.getcwd(), "tmp")
+    # shutil.rmtree(dir_path)
 
 
 def _load_changelog_commits():
@@ -65,16 +85,15 @@ def process_commit(base_commit, update_commit):
     """
     args = [str(base_commit), str(update_commit)]
     # Checkout the repo for both commits
-    output = subprocess.run(
+    output = subprocess.run(  # noqa: S603
         ["bash", "schema_api/scripts/checkout_commits.sh", *args],
-        shell=False,
         check=True,
+        capture_output=True,
+        text=True,
     )
 
     # Save the date
-    date = output.decode("utf-8").strip()
-    print(date)
-
+    date = output.stdout.strip()
     commit_updates = []
 
     # Extract differences between schemas
@@ -90,17 +109,18 @@ def process_commit(base_commit, update_commit):
 
         for change in db_updates:
             change["commit_hash"] = update_commit
-            change["date"] = datetime.strptime(date, "%Y-%m-%d").replace(
+            change["committed_at"] = datetime.strptime(date, "%Y-%m-%d %H:%M:%S").replace(
                 tzinfo=get_current_timezone()
             )
             commit_updates.append(change)
 
     # Create db instances for all updates in commit
-    print(f"Adding {len(commit_updates)} changelog updates to database...")
+    print(f"Adding {len(commit_updates)} changelog update(s) to database...")
     for update in commit_updates:
         try:
-            item = ChangelogItem.objects.create(**update)
+            item = ChangelogItem(**update)
             print(f"* {item}")
+            item.save()
         except IntegrityError:
             print(f"* {update} already exists in database.")
             # Or probably log
