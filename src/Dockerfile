@@ -60,4 +60,4 @@ RUN chown schemaapi /app/*
 
 EXPOSE 8000
 USER schemaapi
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["sh", "/app/entrypoint.sh"]
