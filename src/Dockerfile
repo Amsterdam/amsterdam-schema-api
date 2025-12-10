@@ -57,6 +57,7 @@ RUN python manage.py collectstatic --noinput
 RUN chown schemaapi /app/
 RUN mkdir -p /app/schema
 RUN chown schemaapi /app/*
+RUN chmod +x /app/entrypoint.sh
 
 EXPOSE 8000
 USER schemaapi
