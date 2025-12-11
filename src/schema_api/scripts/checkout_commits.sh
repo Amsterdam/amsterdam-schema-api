@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Load the 2 commits to compare from the command line
 base_commit=$1

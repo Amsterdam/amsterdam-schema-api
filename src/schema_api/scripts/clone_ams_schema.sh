@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # Clone Amsterdam Schema repo
 
 start_commit=$1
