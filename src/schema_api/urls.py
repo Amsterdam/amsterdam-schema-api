@@ -18,14 +18,14 @@ router.register(r"profiles", views.ProfileViewSet, basename="profile")
 
 urlpatterns = [
     path("status/", views.RootView.as_view()),
-    path("", include(router.urls)),
+    path("v1/", include(router.urls)),
     path(
-        "schema/",
+        "v1/schema/",
         SpectacularSwaggerView.as_view(url_name="schema-json"),
         name="swagger-ui",
     ),
-    path("openapi.json", SpectacularJSONAPIView.as_view(), name="schema-json"),
-    path("openapi.yaml", SpectacularYAMLAPIView.as_view(), name="schema-yaml"),
+    path("v1/openapi.json", SpectacularJSONAPIView.as_view(), name="schema-json"),
+    path("v1/openapi.yaml", SpectacularYAMLAPIView.as_view(), name="schema-yaml"),
 ]
 
 if settings.DEBUG:
