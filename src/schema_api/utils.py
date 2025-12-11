@@ -13,7 +13,7 @@ def simplify_json(schema: DatasetSchema):
         for table in vdata["tables"]:
 
             # Construct reference to replace inlined table
-            table_ref = f"{to_snake_case(table["id"])}/{vmajor}"
+            table_ref = f"{to_snake_case(table['id'])}/{vmajor}"
             tables_ref.append({"id": table["id"], "$ref": table_ref})
         schema_json["versions"][vmajor]["tables"] = tables_ref
 
