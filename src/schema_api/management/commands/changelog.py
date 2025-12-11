@@ -111,8 +111,8 @@ def extend_changelog_table():
     shutil.rmtree(dir_path)
 
     # Remove the whole tmp folder
-    # dir_path = os.path.join(os.getcwd(), "tmp")
-    # shutil.rmtree(dir_path)
+    dir_path = os.path.join(os.getcwd(), "tmp")
+    shutil.rmtree(dir_path)
 
 
 def _load_changelog_commits():
