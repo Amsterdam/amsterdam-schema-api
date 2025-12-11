@@ -112,8 +112,8 @@ def create_table(here):
 
 
 @pytest.fixture()
-def create_dataset(here):
-    path = here / "files/datasets/changelog/create_dataset.json"
+def create_dataset_version(here):
+    path = here / "files/datasets/changelog/create_dataset_version.json"
     return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
         path, allow_external_files=True
     )
@@ -122,6 +122,14 @@ def create_dataset(here):
 @pytest.fixture()
 def status_dataset(here):
     path = here / "files/datasets/changelog/status_dataset.json"
+    return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
+        path, allow_external_files=True
+    )
+
+
+@pytest.fixture()
+def update_experimental_dataset(here):
+    path = here / "files/datasets/changelog/update_experimental_dataset.json"
     return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
         path, allow_external_files=True
     )
