@@ -3,11 +3,10 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.core.management import BaseCommand
 from django.db.utils import IntegrityError
-from django.utils.timezone import get_current_timezone
 from schematools.loaders import get_schema_loader
 from schematools.types import DatasetSchema, SemVer
 
@@ -17,20 +16,58 @@ CHANGES_DIR = "tmp/changes/"
 
 
 class Command(BaseCommand):
+    help = "Write updates to Changelog table  for datasets from Amsterdam Schema."
+
+    def add_arguments(self, parser) -> None:
+        parser.add_argument(
+            "--start_commit", nargs="*", help="Commit to start generating updates from."
+        )
+        parser.add_argument(
+            "--end_commit",
+            nargs="*",
+            default=["HEAD"],
+            help="Last commit to generate updates from.",
+        )
 
     def handle(self, *args, **options):
 
-        # Start from a fixed commit or the latest update
-        start_commit = _get_most_recent_commit()
-        # start_commit = "2ae98c5d4fb66ae4469924c8c16c8b77f216ed39"
+        # Define start and end commit (if provided)
+        if options["start_commit"]:
+            print("Using provided start commit")
+            start_commit = options["start_commit"][0]
+        else:
+            start_commit = _get_most_recent_commit()
+
+        end_commit = options["end_commit"][0]
 
         # Clone Amsterdam Schema repo and fetch all commits into master
         subprocess.run(  # noqa: S603
-            ["bash", "schema_api/scripts/clone_ams_schema.sh", start_commit], check=True
+            [
+                "bash",
+                "schema_api/scripts/clone_ams_schema.sh",
+                start_commit,
+                end_commit,
+            ],
+            check=True,
         )
 
         # Write updates to Changelog table
         extend_changelog_table()
+
+
+def _get_most_recent_commit() -> str:
+    """
+    Gets most recent commit from the db table as a starting point
+    to generate new updates from. Use the hard coded commit when
+    running this command when changelog table is empty.
+    """
+    commits = ChangelogItem.objects.order_by("-committed_at")
+    if commits:
+        print("Using start commit from the db.")
+        return commits[0].commit_hash
+    start_commit = "418e137ff39c1d0ef9e224067627fe300ff9f4a1"
+    print(f"Using fixed start commit: {start_commit}")
+    return start_commit
 
 
 def extend_changelog_table():
@@ -70,8 +107,8 @@ def extend_changelog_table():
             base_commit = update_commit
 
     # Remove the whole tmp folder
-    # dir_path = os.path.join(os.getcwd(), "tmp")
-    # shutil.rmtree(dir_path)
+    dir_path = os.path.join(os.getcwd(), "tmp")
+    shutil.rmtree(dir_path)
 
 
 def _load_changelog_commits():
@@ -102,15 +139,16 @@ def process_commit(base_commit, update_commit):
 
     for ds in dataset_diffs:
         db_updates = dataset_diffs[ds]
-
+        if db_updates:
+            print(
+                f"Adding {len(db_updates)} changelog update(s) for dataset {ds.id} to database..."
+            )
         for update in db_updates:
 
             # Add commit hash and commit timestamp
-            print(f"Adding {len(db_updates)} changelog update(s) to database...")
-
             update["commit_hash"] = update_commit
             update["committed_at"] = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").replace(
-                tzinfo=get_current_timezone()
+                tzinfo=timezone.utc
             )
 
             # Create db instance of update (only allow unique entries)
@@ -208,18 +246,6 @@ def extract_diffs_for_dataset(diffs: dict[str:list], update_ds: DatasetSchema) -
             db_updates.append(change_dict)
 
     return db_updates
-
-
-def _get_most_recent_commit() -> str:
-    """
-    Gets most recent commit from the db table as a starting point
-    to generate new updates from. Use the hard coded commit when
-    running this command when changelog table is empty.
-    """
-    commits = ChangelogItem.objects.order_by("-committed_at")
-    if commits:
-        return commits[0].commit_hash
-    return "306da010dca57c4828b7917e88089aea279452a0"
 
 
 def _load_changelog_commits():
