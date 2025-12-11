@@ -1,10 +1,12 @@
+#!/bin/bash
 # Clone Amsterdam Schema repo
 
 start_commit=$1
-end_commit="HEAD"
-echo "Generating changelog from commit:"
+end_commit=$2
+echo "Generating Changelog update from commit:"
 echo $start_commit
-echo ""
+echo "to commit:"
+echo $end_commit
 
 mkdir tmp
 cd tmp
@@ -16,15 +18,23 @@ echo "Done!"
 
 # Fetch history of commits into master (oldest to newest)
 cd amsterdam-schema
-#git pull
-#git fetch origin master
+git pull
+git fetch origin master
 
-commits=$(git log $start_commit^..$end_commit --first-parent master --pretty=format:"%H")
+# First fetch all commits from start commit to head
+commits=$(git log $start_commit^..HEAD --first-parent master --pretty=format:"%H")
 
-# Store commits in an actual array
+# Only save commits between start and end (if end commit is specified)
+flag="False"
+
 original_array=()
 for commit in $commits; do
-    original_array+=("$commit")
+    if [[ "$commit" == "$end_commit" ]]; then
+        flag=True
+    fi
+    if [[ "$flag" == "True" ]] || [[ "$end_commit" == "HEAD" ]]; then
+        original_array+=("$commit")
+    fi
 done
 
 # Reverse the array
