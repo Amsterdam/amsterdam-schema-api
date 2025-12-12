@@ -54,8 +54,6 @@ RUN pip install setuptools  # workaround for missing pkg_resources in openteleme
 RUN python manage.py collectstatic --noinput
 
 # Give user permission to modify sqlite db
-RUN chown schemaapi /app/
-RUN mkdir -p /app/schema
 RUN chown schemaapi /app/*
 RUN chmod +x /app/entrypoint.sh
 
