@@ -1,10 +1,22 @@
-#!/bin/sh
+#!/bin/bash
+set -e
 
-# These commands are run when the container is started
+echo "--- Run migrate"
 python manage.py migrate
-echo "Importing schemas..."
+echo "--- Import schemas"
 python manage.py import_schemas --execute --no-migrate-tables
+echo "--- Import scopes"
 python manage.py import_scopes
+echo "--- Import publishers"
 python manage.py import_publishers
+echo "--- Import profiles"
 python manage.py import_profiles
-uwsgi
+echo "--- Start uWSGI..."
+exec uwsgi \
+    --py-auto-reload=1 \
+    --enable-threads \
+    --lazy-apps \
+    --buffer-size=65535 \
+    --single-interpreter \
+    --need-app \
+    --memory-report
