@@ -30,29 +30,36 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        try:
+            # Define start and end commit (if provided)
+            if options["start_commit"]:
+                print("Using provided start commit")
+                start_commit = options["start_commit"][0]
+            else:
+                start_commit = _get_most_recent_commit()
 
-        # Define start and end commit (if provided)
-        if options["start_commit"]:
-            print("Using provided start commit")
-            start_commit = options["start_commit"][0]
-        else:
-            start_commit = _get_most_recent_commit()
+            end_commit = options["end_commit"][0]
 
-        end_commit = options["end_commit"][0]
+            # Clone Amsterdam Schema repo and fetch all commits into master
+            subprocess.run(  # noqa: S603
+                [
+                    "bash",
+                    "schema_api/scripts/clone_ams_schema.sh",
+                    start_commit,
+                    end_commit,
+                ],
+                check=True,
+            )
 
-        # Clone Amsterdam Schema repo and fetch all commits into master
-        subprocess.run(  # noqa: S603
-            [
-                "bash",
-                "schema_api/scripts/clone_ams_schema.sh",
-                start_commit,
-                end_commit,
-            ],
-            check=True,
-        )
-
-        # Write updates to Changelog table
-        extend_changelog_table()
+            # Write updates to Changelog table
+            extend_changelog_table()
+        except subprocess.CalledProcessError:
+            self.stdout.write(
+                "Something went wrong with scripts/clone_ams_schema.sh, "
+                "tmp folder will be removed. Please run ./manage.py changelog again. "
+            )
+            dir_path = os.path.join(os.getcwd(), "tmp")
+            shutil.rmtree(dir_path)
 
 
 def _get_most_recent_commit() -> str:
@@ -105,10 +112,6 @@ def extend_changelog_table():
 
             # Update commit will be base for next commit
             base_commit = update_commit
-
-    # Remove the whole tmp folder
-    dir_path = os.path.join(os.getcwd(), "tmp")
-    shutil.rmtree(dir_path)
 
     # Remove the whole tmp folder
     dir_path = os.path.join(os.getcwd(), "tmp")
@@ -290,7 +293,7 @@ def _extract_table_info(field_list: list, update_ds: DatasetSchema) -> dict[str:
     dataset_vmajor = update_ds.get_version(ds_vmajor)
     dataset_id = update_ds.id
     change_dict["dataset_id"] = dataset_id
-    change_dict["lifecycle_status"] = dataset_vmajor.lifecycle_status.value
+    change_dict["status"] = dataset_vmajor.lifecycle_status.value
 
     # Construct object id
     object_id = f"{dataset_id}/{ds_vmajor}/{table_id}"
@@ -311,7 +314,7 @@ def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[st
     dataset_vmajor = update_ds.get_version(ds_vmajor)
     dataset_id = update_ds.id
     change_dict["dataset_id"] = dataset_id
-    change_dict["lifecycle_status"] = dataset_vmajor.lifecycle_status.value
+    change_dict["status"] = dataset_vmajor.lifecycle_status.value
 
     # Construct object id
     object_id = f"{dataset_id}/{ds_vmajor}"
@@ -332,7 +335,7 @@ def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[st
     dataset_vmajor = update_ds.get_version(ds_vmajor)
     dataset_id = update_ds.id
     change_dict["dataset_id"] = dataset_id
-    change_dict["lifecycle_status"] = dataset_vmajor.lifecycle_status.value
+    change_dict["status"] = dataset_vmajor.lifecycle_status.value
 
     # Construct object id
     object_id = f"{dataset_id}/{ds_vmajor}"

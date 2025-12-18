@@ -5,7 +5,7 @@ git_url = "https://github.com/Amsterdam/amsterdam-schema/commit/"
 
 class ChangelogItem(models.Model):
     dataset_id = models.CharField()
-    lifecycle_status = models.CharField()
+    status = models.CharField()
     object_id = models.CharField()
     label = models.CharField()
     commit_hash = models.CharField()
@@ -15,7 +15,7 @@ class ChangelogItem(models.Model):
     class Meta:
         unique_together = [
             "dataset_id",
-            "lifecycle_status",
+            "status",
             "object_id",
             "label",
             "commit_hash",
@@ -33,8 +33,6 @@ class ChangelogItem(models.Model):
         # Dataset updates
         else:
             if self.label == "status":
-                return (
-                    f"Set status of dataset version {self.object_id} to {self.lifecycle_status}."
-                )
+                return f"Set status of dataset version {self.object_id} to {self.status}."
             else:
-                return f"Create {self.lifecycle_status} dataset version {self.object_id}."
+                return f"Create {self.status} dataset version {self.object_id}."
