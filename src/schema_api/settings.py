@@ -102,7 +102,18 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 CACHES = {"default": env.cache_url(default="locmemcache://")}
 
-DATABASES = {"default": env.db_url(default="django.db.backends.sqlite3:///schema/db.sqlite3")}
+DATABASES = {
+    "default": env.db_url(
+        "DATABASE_URL",
+        default="postgres://postgres:insecure@localhost:5417/schema_api",
+        engine="django.db.backends.postgresql",
+    ),
+}
+DATABASES["default"].setdefault("OPTIONS", {})
+DATABASES["default"].setdefault("DISABLE_SERVER_SIDE_CURSORS", True)
+DATABASE_SET_ROLE = env.bool("DATABASE_SET_ROLE", False)
+
+DATABASES["default"]["OPTIONS"]["application_name"] = "SCHEMA-API"
 
 locals().update(env.email_url(default="smtp://"))
 

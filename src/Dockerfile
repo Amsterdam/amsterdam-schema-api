@@ -28,18 +28,6 @@ RUN apt update && apt install --no-install-recommends -y \
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 
-# Update sqlite3
-ENV LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
-RUN mkdir -p /tmp/build/sqlite && \
-    curl -L https://www.sqlite.org/2024/sqlite-autoconf-3470000.tar.gz | \
-        tar xz -C /tmp/build/sqlite --strip-components=1 && \
-    cd /tmp/build/sqlite && \
-    CFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1" ./configure && \
-    make && \
-    make install && \
-    python -c "import sqlite3; assert sqlite3.sqlite_version == '3.47.0'" && \
-    cd / && rm -rf /tmp/build
-
 WORKDIR /app
 COPY . ./
 
@@ -52,10 +40,6 @@ ENV DJANGO_SETTINGS_MODULE=schema_api.settings \
     UWSGI_MASTER=1
 RUN pip install setuptools  # workaround for missing pkg_resources in opentelemetry
 RUN python manage.py collectstatic --noinput
-
-# Give user permission to modify sqlite db
-RUN chown schemaapi /app/
-RUN mkdir -p /app/schema
 
 EXPOSE 8000
 USER schemaapi
