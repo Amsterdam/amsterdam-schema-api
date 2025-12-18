@@ -30,29 +30,36 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        try:
+            # Define start and end commit (if provided)
+            if options["start_commit"]:
+                print("Using provided start commit")
+                start_commit = options["start_commit"][0]
+            else:
+                start_commit = _get_most_recent_commit()
 
-        # Define start and end commit (if provided)
-        if options["start_commit"]:
-            print("Using provided start commit")
-            start_commit = options["start_commit"][0]
-        else:
-            start_commit = _get_most_recent_commit()
+            end_commit = options["end_commit"][0]
 
-        end_commit = options["end_commit"][0]
+            # Clone Amsterdam Schema repo and fetch all commits into master
+            subprocess.run(  # noqa: S603
+                [
+                    "bash",
+                    "schema_api/scripts/clone_ams_schema.sh",
+                    start_commit,
+                    end_commit,
+                ],
+                check=True,
+            )
 
-        # Clone Amsterdam Schema repo and fetch all commits into master
-        subprocess.run(  # noqa: S603
-            [
-                "bash",
-                "schema_api/scripts/clone_ams_schema.sh",
-                start_commit,
-                end_commit,
-            ],
-            check=True,
-        )
-
-        # Write updates to Changelog table
-        extend_changelog_table()
+            # Write updates to Changelog table
+            extend_changelog_table()
+        except subprocess.CalledProcessError:
+            self.stdout.write(
+                "Something went wrong with scripts/clone_ams_schema.sh, "
+                "tmp folder will be removed. Please run ./manage.py changelog again. "
+            )
+            dir_path = os.path.join(os.getcwd(), "tmp")
+            shutil.rmtree(dir_path)
 
 
 def _get_most_recent_commit() -> str:
@@ -68,6 +75,13 @@ def _get_most_recent_commit() -> str:
     start_commit = "418e137ff39c1d0ef9e224067627fe300ff9f4a1"
     print(f"Using fixed start commit: {start_commit}")
     return start_commit
+
+
+def get_most_recent_commit():
+    commits = ChangelogItem.objects.order_by("-committed_at")
+    if commits:
+        return commits[0].commit_hash
+    return "306da010dca57c4828b7917e88089aea279452a0"
 
 
 def extend_changelog_table():
@@ -105,10 +119,6 @@ def extend_changelog_table():
 
             # Update commit will be base for next commit
             base_commit = update_commit
-
-    # Remove the whole tmp folder
-    dir_path = os.path.join(os.getcwd(), "tmp")
-    shutil.rmtree(dir_path)
 
     # Remove the whole tmp folder
     dir_path = os.path.join(os.getcwd(), "tmp")
@@ -226,7 +236,7 @@ def extract_diffs_for_dataset(diffs: dict[str:list], update_ds: DatasetSchema) -
                 db_updates.append(change_dict)
 
         # *** UPDATE LIFECYCLE STATUS ***
-        if field_list[-1] == "lifecycleStatus":
+        if field_list[-1] == "status":
             change_dict = _extract_dataset_info(field_list, update_ds)
             change_dict["label"] = "status"
             db_updates.append(change_dict)
@@ -290,7 +300,7 @@ def _extract_table_info(field_list: list, update_ds: DatasetSchema) -> dict[str:
     dataset_vmajor = update_ds.get_version(ds_vmajor)
     dataset_id = update_ds.id
     change_dict["dataset_id"] = dataset_id
-    change_dict["lifecycle_status"] = dataset_vmajor.lifecycle_status.value
+    change_dict["status"] = dataset_vmajor.status.value
 
     # Construct object id
     object_id = f"{dataset_id}/{ds_vmajor}/{table_id}"
@@ -311,7 +321,7 @@ def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[st
     dataset_vmajor = update_ds.get_version(ds_vmajor)
     dataset_id = update_ds.id
     change_dict["dataset_id"] = dataset_id
-    change_dict["lifecycle_status"] = dataset_vmajor.lifecycle_status.value
+    change_dict["status"] = dataset_vmajor.status.value
 
     # Construct object id
     object_id = f"{dataset_id}/{ds_vmajor}"
@@ -332,7 +342,49 @@ def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[st
     dataset_vmajor = update_ds.get_version(ds_vmajor)
     dataset_id = update_ds.id
     change_dict["dataset_id"] = dataset_id
-    change_dict["lifecycle_status"] = dataset_vmajor.lifecycle_status.value
+    change_dict["status"] = dataset_vmajor.status.value
+
+    # Construct object id
+    object_id = f"{dataset_id}/{ds_vmajor}"
+    change_dict["object_id"] = object_id
+
+    return change_dict
+
+
+def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[str:str]:
+    """
+    Extract necessary fields for a changelog table item
+    """
+    change_dict = {}
+    versions_index = field_list.index("versions")
+    ds_vmajor = field_list[versions_index + 1]
+
+    # Get lifecycle status of DatasetVersion
+    dataset_vmajor = update_ds.get_version(ds_vmajor)
+    dataset_id = update_ds.id
+    change_dict["dataset_id"] = dataset_id
+    change_dict["status"] = dataset_vmajor.lifecycle_status.value
+
+    # Construct object id
+    object_id = f"{dataset_id}/{ds_vmajor}"
+    change_dict["object_id"] = object_id
+
+    return change_dict
+
+
+def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[str:str]:
+    """
+    Extract necessary fields for a changelog table item
+    """
+    change_dict = {}
+    versions_index = field_list.index("versions")
+    ds_vmajor = field_list[versions_index + 1]
+
+    # Get lifecycle status of DatasetVersion
+    dataset_vmajor = update_ds.get_version(ds_vmajor)
+    dataset_id = update_ds.id
+    change_dict["dataset_id"] = dataset_id
+    change_dict["status"] = dataset_vmajor.lifecycle_status.value
 
     # Construct object id
     object_id = f"{dataset_id}/{ds_vmajor}"

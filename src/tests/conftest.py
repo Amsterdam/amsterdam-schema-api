@@ -128,8 +128,8 @@ def status_dataset(here):
 
 
 @pytest.fixture()
-def update_experimental_dataset(here):
-    path = here / "files/datasets/changelog/update_experimental_dataset.json"
+def update_under_development_dataset(here):
+    path = here / "files/datasets/changelog/update_under_development_dataset.json"
     return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
         path, allow_external_files=True
     )
