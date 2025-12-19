@@ -14,32 +14,6 @@ from schema_api.management.commands.changelog import extract_diffs_for_dataset
 
 class TestChangelogCommand:
 
-    @pytest.mark.django_db
-    def test_changelog_command(self):
-        """
-        Test the full changelog command with specified start and end commit.
-        Also test commit hash and commit_at timestamp,
-        these cannot be tested in the following tests.
-        """
-
-        start_commit = "e339b8440466713461065365bfb70d6cb61ca959"
-        end_commit = "7324aedea431e9b364ed18340a21a5f79b9bda0e"
-        args = ["--start_commit", start_commit, "--end_commit", end_commit]
-
-        call_command("changelog", *args)
-
-        assert ChangelogItem.objects.count() == 2
-
-        item1 = ChangelogItem.objects.get(id=1)
-        assert item1.object_id == "benkagg/v1/brkkaartlaageigenaren"
-        assert item1.commit_hash == end_commit
-        assert item1.committed_at == datetime(2025, 11, 26, 14, 17, 15, tzinfo=timezone.utc)
-
-        item2 = ChangelogItem.objects.get(id=2)
-        assert item2.object_id == "benkagg/v1/brkkaartlaagerfpachtuitgevers"
-        assert item2.commit_hash == end_commit
-        assert item2.committed_at == datetime(2025, 11, 26, 14, 17, 15, tzinfo=timezone.utc)
-
     def test_changelog_deepdiff_field_names(
         self,
         base_dataset: DatasetSchema,
@@ -58,6 +32,30 @@ class TestChangelogCommand:
             "dictionary_item_added",
             "values_changed",
         }
+
+    @pytest.mark.django_db
+    def test_changelog_command(self):
+        """
+        Test the full changelog command with specified start and end commit.
+        Also test commit hash and commit_at timestamp,
+        these cannot be tested in the following tests.
+        """
+
+        start_commit = "e339b8440466713461065365bfb70d6cb61ca959"
+        end_commit = "7324aedea431e9b364ed18340a21a5f79b9bda0e"
+        args = ["--start_commit", start_commit, "--end_commit", end_commit]
+
+        call_command("changelog", *args)
+
+        assert ChangelogItem.objects.count() == 2
+
+        item1 = ChangelogItem.objects.get(object_id="benkagg/v1/brkkaartlaageigenaren")
+        assert item1.commit_hash == end_commit
+        assert item1.committed_at == datetime(2025, 11, 26, 14, 17, 15, tzinfo=timezone.utc)
+
+        item2 = ChangelogItem.objects.get(object_id="benkagg/v1/brkkaartlaagerfpachtuitgevers")
+        assert item2.commit_hash == end_commit
+        assert item2.committed_at == datetime(2025, 11, 26, 14, 17, 15, tzinfo=timezone.utc)
 
     def test_changelog_update_table_a(
         self,
@@ -126,7 +124,7 @@ class TestChangelogCommand:
         assert len(db_updates) == 1
         assert db_updates[0] == {
             "dataset_id": "bomen",
-            "status": "under_development",
+            "status": "experimental",
             "object_id": "bomen/v3",
             "label": "create",
         }
@@ -171,7 +169,7 @@ class TestChangelogCommand:
         assert db_updates[0] == {
             "dataset_id": "bomen",
             "label": "update",
-            "status": "under_development",
+            "status": "experimental",
             "object_id": "bomen/v2/groeiplaatsmedebeheer",
         }
 
@@ -201,7 +199,7 @@ class TestChangelogCommand:
         }
         assert db_updates[2] == {
             "dataset_id": "bomen",
-            "status": "under_development",
+            "status": "experimental",
             "object_id": "bomen/v3",
             "label": "create",
         }

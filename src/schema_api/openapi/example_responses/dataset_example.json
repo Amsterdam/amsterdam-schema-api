@@ -34,7 +34,7 @@
     "defaultVersion": "v1",
     "versions": {
         "v1": {
-            "status": "stable",
+            "lifecycleStatus": "stable",
             "version": "1.0.0",
             "tables": [
                 {
@@ -42,7 +42,7 @@
                     "title": "Data over Standaard Jaarverbruik (SJV) en aantal aansluitingen per postcode-range in de MRA, vanaf 2018. Nieuwe data aan het einde van de maand.",
                     "type": "table",
                     "version": "1.0.0",
-                    "status": "stable",
+                    "lifecycleStatus": "stable",
                     "schema": {
                         "$schema": "http://json-schema.org/draft-07/schema#",
                         "identifier": "id",
@@ -222,7 +222,7 @@
                     "title": "Per postcoderange het gemiddelde aardgasverbruik (SJV) per aansluiting en de verandering in aardgasverbruik (SJV) ten opzichte van het gemiddelde standaard jaarverbruik tussen 2018 en 2021. In deze dataset zit alleen de laatste maand van de laatste datalevering. Te koppelen met aardgasverbruik_mra_liander op id.",
                     "type": "table",
                     "version": "1.0.0",
-                    "status": "stable",
+                    "lifecycleStatus":"stable",
                     "schema": {
                         "$schema": "http://json-schema.org/draft-07/schema#",
                         "identifier": "id",
