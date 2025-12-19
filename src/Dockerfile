@@ -22,7 +22,9 @@ RUN apt update && apt install --no-install-recommends -y \
     build-essential \
     curl \
     libgdal28 \
-    netcat-openbsd
+    netcat-openbsd \
+    git \
+    openssl
 
 # Copy python build artifacts from builder image
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
@@ -43,4 +45,4 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 USER schemaapi
-ENTRYPOINT ["sh", "/app/entrypoint.sh"]
+#ENTRYPOINT ["sh", "/app/entrypoint.sh"]

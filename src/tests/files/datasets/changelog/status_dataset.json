@@ -2,20 +2,6 @@
     "id": "bomen",
     "type": "dataset",
     "authorizationGrantor": "Directie V&OR, Gemeente Amsterdam",
-    "auth": [
-        {
-            "type": "scope",
-            "id": "OPENBAAR",
-            "name": "Openbaar",
-            "accessPackages": {
-                "nonProduction": "EM4W-DATA-schemascope-ot-scope_openbaar",
-                "production": "EM4W-DATA-schemascope-p-scope_openbaar"
-            },
-            "owner": {
-                "$ref": "publishers/DADI"
-            }
-        }
-    ],
     "theme": [
         "Groen"
     ],
@@ -39,19 +25,7 @@
     },
     "description": "dataset met actuele informatie over de bomen in beheer van gemeente Amsterdam",
     "keywords": [
-        "boom",
-        "bomen",
-        "boom paspoort",
-        "stamgegevens",
-        "groen",
-        "veiligeheidsinspectie",
-        "gebrekregistratie",
-        "maatregelregistratie",
-        "kap",
-        "herplant",
-        "nto",
-        "meting",
-        "nader technisch onderzoek"
+        "boom"
     ],
     "crs": "EPSG:28992",
     "temporalUnit": "",
@@ -66,7 +40,7 @@
                     "id": "groeiplaatsmedebeheer",
                     "type": "table",
                     "version": "1.0.0",
-                    "lifecycleStatus":"stable",
+                    "lifecycleStatus": "stable",
                     "title": "Groeiplaats medebeheer van bomen",
                     "description": "",
                     "auth": "FP/MDW",
@@ -91,30 +65,6 @@
                                 "type": "integer",
                                 "title": "ID",
                                 "description": "Unieke aanduiding van record"
-                            },
-                            "groeiplaatsBoom": {
-                                "type": "integer",
-                                "title": "Groeiplaats boom",
-                                "description": "De unieke aanduiding van de groeiplaats van de boom"
-                            },
-                            "guid": {
-                                "type": "string",
-                                "title": "Guid",
-                                "description": "Global Unique Identifier: unieke aanduiding van het object.",
-                                "auth": "FP/MDW",
-                                "reasonsNonPublic": [
-                                    "5.1 2d: Zwaarwegend belang: inspectie, controle en toezicht door bestuursorganen"
-                                ]
-                            },
-                            "begindatum": {
-                                "type": "string",
-                                "title": "",
-                                "format": "date-time",
-                                "description": "",
-                                "auth": "FP/MDW",
-                                "reasonsNonPublic": [
-                                    "5.1 2d: Zwaarwegend belang: inspectie, controle en toezicht door bestuursorganen"
-                                ]
                             }
                         }
                     }
@@ -123,16 +73,20 @@
         },
         "v2": {
             "status": "niet_beschikbaar",
-            "lifecycleStatus":"experimental",
-            "version": "2.0.0",
+            "lifecycleStatus": "experimental",
+            "version": "2.3.5",
             "tables": [
                 {
                     "id": "groeiplaatsmedebeheer",
                     "type": "table",
                     "version": "1.0.0",
-                    "lifecycleStatus":"stable",
+                    "lifecycleStatus": "stable",
                     "title": "Groeiplaats medebeheer van bomen",
                     "description": "",
+                    "auth": "FP/MDW",
+                    "reasonsNonPublic": [
+                        "5.1 2d: Zwaarwegend belang: inspectie, controle en toezicht door bestuursorganen"
+                    ],
                     "identifier": "id",
                     "schema": {
                         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -151,30 +105,6 @@
                                 "type": "integer",
                                 "title": "ID",
                                 "description": "Unieke aanduiding van record"
-                            },
-                            "groeiplaatsBoom": {
-                                "type": "integer",
-                                "title": "Groeiplaats boom",
-                                "description": "De unieke aanduiding van de groeiplaats van de boom"
-                            },
-                            "guid": {
-                                "type": "string",
-                                "title": "Guid",
-                                "description": "Global Unique Identifier: unieke aanduiding van het object.",
-                                "auth": "FP/MDW",
-                                "reasonsNonPublic": [
-                                    "5.1 2d: Zwaarwegend belang: inspectie, controle en toezicht door bestuursorganen"
-                                ]
-                            },
-                            "begindatum": {
-                                "type": "string",
-                                "title": "",
-                                "format": "date-time",
-                                "description": "",
-                                "auth": "FP/MDW",
-                                "reasonsNonPublic": [
-                                    "5.1 2d: Zwaarwegend belang: inspectie, controle en toezicht door bestuursorganen"
-                                ]
                             }
                         }
                     }

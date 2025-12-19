@@ -11,6 +11,8 @@ echo "--- Import publishers"
 python manage.py import_publishers
 echo "--- Import profiles"
 python manage.py import_profiles
+echo "--- Run Changelog command"
+python manage.py changelog
 echo "--- Start uWSGI..."
 exec uwsgi \
     --py-auto-reload=1 \
