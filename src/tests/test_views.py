@@ -1,6 +1,8 @@
 import pytest
 from django.urls import reverse
 
+from schema_api.models import ChangelogItem
+
 
 def test_root_view(client):
     response = client.get("/status/")
@@ -248,3 +250,23 @@ class TestProfileViews:
         )
         assert response.status_code == 200
         assert response.data["id"] == "brkdataportaalgebruiker"
+
+
+@pytest.mark.django_db
+class TestChangelogViews:
+    def test_changelog_listview(self, client):
+        item = {
+            "id": 1,
+            "dataset_id": "hrKvk",
+            "status": "stable",
+            "object_id": "hrKvk/v1/functievervullingen",
+            "label": "update",
+            "commit_hash": "COMMIT_HASH",
+            "committed_at": "2025-11-04T14:36:05+01:00",
+        }
+        ChangelogItem.objects.create(**item)
+        response = client.get(reverse("changelog-list"))
+        assert response.status_code == 200
+        assert response.data["count"] == 1
+        response = response.data["results"][0]
+        assert response["object_id"] == "hrKvk/v1/functievervullingen"
