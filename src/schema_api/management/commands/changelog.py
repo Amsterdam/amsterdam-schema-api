@@ -216,7 +216,7 @@ def extract_diffs_for_dataset(diffs: dict[str:list], update_ds: DatasetSchema) -
     """
     db_updates = []
 
-    # Extract updates for modified tables and dataset lifecycle status updates
+    # Extract updates for modified tables and dataset status updates
     modifications = diffs.get("values_changed", [])
     for field in modifications:
         field_list = _parse_deepdiff_field(field)
@@ -235,7 +235,7 @@ def extract_diffs_for_dataset(diffs: dict[str:list], update_ds: DatasetSchema) -
                 change_dict["label"] = "update"
                 db_updates.append(change_dict)
 
-        # *** UPDATE LIFECYCLE STATUS ***
+        # *** UPDATE STATUS ***
         if field_list[-1] == "status":
             change_dict = _extract_dataset_info(field_list, update_ds)
             change_dict["label"] = "status"
@@ -296,7 +296,7 @@ def _extract_table_info(field_list: list, update_ds: DatasetSchema) -> dict[str:
     # Get dataset vmajor
     ds_vmajor = field_list[tables_index - 1]
 
-    # Get lifecycle status of DatasetVersion
+    # Get status of DatasetVersion
     dataset_vmajor = update_ds.get_version(ds_vmajor)
     dataset_id = update_ds.id
     change_dict["dataset_id"] = dataset_id
@@ -317,74 +317,11 @@ def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[st
     versions_index = field_list.index("versions")
     ds_vmajor = field_list[versions_index + 1]
 
-    # Get lifecycle status of DatasetVersion
+    # Get status of DatasetVersion
     dataset_vmajor = update_ds.get_version(ds_vmajor)
     dataset_id = update_ds.id
     change_dict["dataset_id"] = dataset_id
     change_dict["status"] = dataset_vmajor.status.value
-
-    # Construct object id
-    object_id = f"{dataset_id}/{ds_vmajor}"
-    change_dict["object_id"] = object_id
-
-    return change_dict
-
-
-def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[str:str]:
-    """
-    Extract necessary fields for a changelog table item
-    """
-    change_dict = {}
-    versions_index = field_list.index("versions")
-    ds_vmajor = field_list[versions_index + 1]
-
-    # Get lifecycle status of DatasetVersion
-    dataset_vmajor = update_ds.get_version(ds_vmajor)
-    dataset_id = update_ds.id
-    change_dict["dataset_id"] = dataset_id
-    change_dict["status"] = dataset_vmajor.status.value
-
-    # Construct object id
-    object_id = f"{dataset_id}/{ds_vmajor}"
-    change_dict["object_id"] = object_id
-
-    return change_dict
-
-
-def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[str:str]:
-    """
-    Extract necessary fields for a changelog table item
-    """
-    change_dict = {}
-    versions_index = field_list.index("versions")
-    ds_vmajor = field_list[versions_index + 1]
-
-    # Get lifecycle status of DatasetVersion
-    dataset_vmajor = update_ds.get_version(ds_vmajor)
-    dataset_id = update_ds.id
-    change_dict["dataset_id"] = dataset_id
-    change_dict["status"] = dataset_vmajor.lifecycle_status.value
-
-    # Construct object id
-    object_id = f"{dataset_id}/{ds_vmajor}"
-    change_dict["object_id"] = object_id
-
-    return change_dict
-
-
-def _extract_dataset_info(field_list: list, update_ds: DatasetSchema) -> dict[str:str]:
-    """
-    Extract necessary fields for a changelog table item
-    """
-    change_dict = {}
-    versions_index = field_list.index("versions")
-    ds_vmajor = field_list[versions_index + 1]
-
-    # Get lifecycle status of DatasetVersion
-    dataset_vmajor = update_ds.get_version(ds_vmajor)
-    dataset_id = update_ds.id
-    change_dict["dataset_id"] = dataset_id
-    change_dict["status"] = dataset_vmajor.lifecycle_status.value
 
     # Construct object id
     object_id = f"{dataset_id}/{ds_vmajor}"
