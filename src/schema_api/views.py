@@ -11,6 +11,8 @@ from schematools.types import DatasetSchema
 
 import schema_api.openapi.schema as schema
 
+from .models import ChangelogItem
+from .serializers import ChangelogItemSerializer
 from .utils import simplify_json
 
 
@@ -143,3 +145,14 @@ class PublisherViewSet(BaseViewSet):
 )
 class ProfileViewSet(BaseViewSet):
     queryset = Profile.objects.all()
+
+
+class ChangelogViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ChangelogItem.objects.all()
+    serializer = ChangelogItemSerializer(queryset, many=True)
+
+    def list(self, request):
+        page = self.paginate_queryset(self.serializer.data)
+        if page is not None:
+            return self.get_paginated_response(self.serializer.data)
+        return Response(self.serializer.data)
