@@ -126,7 +126,7 @@ class TestChangelogCommand:
         assert len(db_updates) == 1
         assert db_updates[0] == {
             "dataset_id": "bomen",
-            "status": "experimental",
+            "status": "under_development",
             "object_id": "bomen/v3",
             "label": "create",
         }
@@ -137,7 +137,7 @@ class TestChangelogCommand:
         status_dataset: DatasetSchema,
     ):
         """
-        Different than other tests: update_ds contains experimental v2 version,
+        Different than other tests: update_ds contains under_development v2 version,
         this is 'set to' stable (default value) in the base dataset
         """
 
@@ -153,25 +153,25 @@ class TestChangelogCommand:
             "label": "status",
         }
 
-    def test_changelog_update_experimental_dataset(
+    def test_changelog_update_under_development_dataset(
         self,
         status_dataset: DatasetSchema,
-        update_experimental_dataset: DatasetSchema,
+        update_under_development_dataset: DatasetSchema,
     ):
         """
-        Different than other tests: update_ds contains experimental v2 version,
+        Different than other tests: update_ds contains under_development v2 version,
         this is 'set to' stable (default value) in the base dataset
         """
 
         # Mimic functionality of changelog command
-        diffs = status_dataset.get_diffs(update_experimental_dataset)
+        diffs = status_dataset.get_diffs(update_under_development_dataset)
         db_updates = extract_diffs_for_dataset(diffs, status_dataset)
 
         assert len(db_updates) == 1
         assert db_updates[0] == {
             "dataset_id": "bomen",
             "label": "update",
-            "status": "experimental",
+            "status": "under_development",
             "object_id": "bomen/v2/groeiplaatsmedebeheer",
         }
 
@@ -201,7 +201,7 @@ class TestChangelogCommand:
         }
         assert db_updates[2] == {
             "dataset_id": "bomen",
-            "status": "experimental",
+            "status": "under_development",
             "object_id": "bomen/v3",
             "label": "create",
         }
