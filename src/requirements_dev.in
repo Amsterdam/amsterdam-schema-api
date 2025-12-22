@@ -6,9 +6,9 @@ setuptools==80.9.0
 pip-tools==7.5.2
 
 # Linting
-pre-commit==4.5.0
+pre-commit==4.5.1
 black==25.12.0
-ruff==0.14.9
+ruff==0.14.10
 
 # Testing
 pytest-sugar==1.1.1
