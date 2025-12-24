@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
+from django.views.generic.base import RedirectView
 from drf_spectacular.views import (
     SpectacularJSONAPIView,
     SpectacularSwaggerView,
@@ -19,6 +20,7 @@ router.register(r"profiles", views.ProfileViewSet, basename="profile")
 urlpatterns = [
     path("status/", views.RootView.as_view()),
     path("v1/", include(router.urls)),
+    path("", RedirectView.as_view(url="v1/", permanent=True)),
     path(
         "v1/schema/",
         SpectacularSwaggerView.as_view(url_name="schema-json"),

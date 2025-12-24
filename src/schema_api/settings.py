@@ -102,13 +102,28 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 CACHES = {"default": env.cache_url(default="locmemcache://")}
 
+if token_path := env.str("AZ_PG_TOKEN_PATH", None):
+    pgpassword = Path(token_path).read_text()
+else:
+    pgpassword = env.str("POSTGRES_PASSWORD", None)
+
 DATABASES = {
-    "default": env.db_url(
-        "DATABASE_URL",
-        default="postgres://postgres:insecure@localhost:5417/schema_api",
-        engine="django.db.backends.postgresql",
-    ),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": env.str("POSTGRES_DB", "schema_api"),
+        "USER": env.str("POSTGRES_USER", "postgres"),
+        "PASSWORD": pgpassword,
+        "HOST": env.str("PGHOST", "database"),
+        "PORT": env.str("PGPORT", "5432"),
+        # Turned off to prevent memory issues when exporting large datasets.
+        # When disabled the iterator did not use chunks to fetch the data.
+        "DISABLE_SERVER_SIDE_CURSORS": env.bool("DISABLE_SERVER_SIDE_CURSORS", False),
+        "OPTIONS": {
+            "sslmode": env.str("PGSSLMODE", default="require"),
+        },
+    }
 }
+
 DATABASES["default"].setdefault("OPTIONS", {})
 DATABASES["default"].setdefault("DISABLE_SERVER_SIDE_CURSORS", True)
 DATABASE_SET_ROLE = env.bool("DATABASE_SET_ROLE", False)
