@@ -46,6 +46,11 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         dataset = get_object_or_404(datasets, name=name)
         dataset_schema = dataset.schema
 
+        # Table filtering
+        tables_param = request.query_params.getlist("tables")
+        if tables_param:
+            dataset_schema = DatasetSchema.filter_on_tables(dataset_schema, tables_param)
+
         # Scope filtering
         scopes_param = request.query_params.getlist("scopes")
         if scopes_param:
@@ -62,6 +67,11 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         datasets = self.get_queryset()
         dataset = get_object_or_404(datasets, name=name)
         dataset_schema = dataset.schema
+
+        # Table filtering
+        tables_param = request.query_params.getlist("tables")
+        if tables_param:
+            dataset_schema = DatasetSchema.filter_on_tables(dataset_schema, tables_param)
 
         # Scope filtering
         scopes_param = request.query_params.getlist("scopes")
