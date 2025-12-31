@@ -58,8 +58,15 @@ def common_headers(request) -> dict:
 
 
 @pytest.fixture()
-def dataset_fixture(here):
+def bomen_dataset(here):
     dataset_path = here / "files/datasets/bomen.json"
+    args = [dataset_path]
+    call_command("import_schemas", *args, dry_run=False)
+
+
+@pytest.fixture()
+def gebieden_dataset(here):
+    dataset_path = here / "files/datasets/gebieden.json"
     args = [dataset_path]
     call_command("import_schemas", *args, dry_run=False)
 

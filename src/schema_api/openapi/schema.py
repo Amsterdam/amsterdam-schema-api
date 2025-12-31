@@ -57,9 +57,22 @@ list_datasets_schema = extend_schema(
     tags=["Dataset"],
 )
 
+SCOPES_PARAM = OpenApiParameter(
+    name="scopes",
+    description="Komma-gescheiden lijst van scopes; resulteert in het weergeven van slechts die "
+    "velden die toegankelijk zijn met deze scopes. Laat alle velden zien als parameter wordt "
+    "weggelaten.",
+)
+
+TABLES_PARAM = OpenApiParameter(
+    name="tables",
+    description="Komma-gescheiden lijst van tabellen; resulteert in een dataset(versie) met deze "
+    "(sub)set van tabellen. Laat alle tabellen zien als parameter wordt weggelaten.",
+)
 
 retrieve_datasets_schema = extend_schema(
     description="Vraag een specifieke dataset op",
+    parameters=[SCOPES_PARAM, TABLES_PARAM],
     summary="Opgevraagde dataset",
     responses={
         200: OpenApiResponse(
@@ -78,6 +91,7 @@ retrieve_datasets_schema = extend_schema(
 retrieve_datasets_schema_v = extend_schema(
     description="Vraag een specifieke versie van een dataset op",
     summary="Opgevraagde dataset versie",
+    parameters=[SCOPES_PARAM, TABLES_PARAM],
     responses={
         200: OpenApiResponse(
             response={"type": "object", "properties": {}},
@@ -95,6 +109,7 @@ retrieve_datasets_schema_v = extend_schema(
 retrieve_datasets_schema_v_t = extend_schema(
     description="Vraag een tabel van een specifieke versie van een dataset op",
     summary="Opgevraagde tabel",
+    parameters=[SCOPES_PARAM],
     responses={
         200: OpenApiResponse(
             response={"type": "object", "properties": {}},

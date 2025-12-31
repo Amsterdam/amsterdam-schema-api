@@ -15,21 +15,57 @@ class TestDatasetViews:
         response = client.get(reverse("dataset-list"))
         assert response.status_code == 200
 
-    def test_dataset_detail(self, client, dataset_fixture):
+    def test_dataset_detail(self, client, bomen_dataset):
         response = client.get(
             reverse("dataset-detail", kwargs={"name": "bomen"}),
         )
         assert response.status_code == 200
         assert response.data["id"] == "bomen"
 
-    def test_dataset_version(self, client, dataset_fixture):
+    def test_dataset_detail_filter_on_tables(self, client, gebieden_dataset):
+        response = client.get(
+            reverse(
+                "dataset-detail",
+                kwargs={"name": "gebieden"},
+                query={"tables": ["bouwblokken", "buurten", "wijken"]},
+            ),
+        )
+        assert response.status_code == 200
+        table_ids = {t["id"] for t in response.data["versions"]["v1"]["tables"]}
+        assert table_ids == {"bouwblokken", "buurten", "wijken"}
+
+    def test_dataset_detail_filter_on_tables_ignores_non_existent(self, client, gebieden_dataset):
+        response = client.get(
+            reverse(
+                "dataset-detail",
+                kwargs={"name": "gebieden"},
+                query={"tables": ["bouwblokken", "buurten", "wijken", "huisnummerplaten"]},
+            ),
+        )
+        assert response.status_code == 200
+        table_ids = {t["id"] for t in response.data["versions"]["v1"]["tables"]}
+        assert table_ids == {"bouwblokken", "buurten", "wijken"}
+
+    def test_dataset_version(self, client, bomen_dataset):
         response = client.get(
             reverse("dataset-version", kwargs={"name": "bomen", "vmajor": "v1"}),
         )
         assert response.status_code == 200
         assert response.data["version"] == "1.3.5"
 
-    def test_dataset_version_not_found(self, client, dataset_fixture):
+    def test_dataset_version_filter_on_tables(self, client, gebieden_dataset):
+        response = client.get(
+            reverse(
+                "dataset-version",
+                kwargs={"name": "gebieden", "vmajor": "v1"},
+                query={"tables": ["bouwblokken", "buurten", "wijken"]},
+            ),
+        )
+        assert response.status_code == 200
+        table_ids = {t["id"] for t in response.data["tables"]}
+        assert table_ids == {"bouwblokken", "buurten", "wijken"}
+
+    def test_dataset_version_not_found(self, client, bomen_dataset):
         response = client.get(
             reverse("dataset-version", kwargs={"name": "bomen", "vmajor": "v3"}),
         )
@@ -39,7 +75,7 @@ class TestDatasetViews:
             == "Version v3 not found in dataset bomen. Available versions are ['v1', 'v2']"
         )
 
-    def test_dataset_table(self, client, dataset_fixture):
+    def test_dataset_table(self, client, bomen_dataset):
         response = client.get(
             reverse(
                 "dataset-table",
@@ -49,7 +85,7 @@ class TestDatasetViews:
         assert response.status_code == 200
         assert response.data["id"] == "groeiplaatsmedebeheer"
 
-    def test_dataset_table_not_found(self, client, dataset_fixture):
+    def test_dataset_table_not_found(self, client, bomen_dataset):
         response = client.get(
             reverse(
                 "dataset-table",
@@ -59,7 +95,7 @@ class TestDatasetViews:
         assert response.status_code == 404
         assert response.data["detail"] == "Table 'groeiplaats' not found."
 
-    def test_dataset_scope_access(self, client, dataset_fixture, scope_fixture):
+    def test_dataset_scope_access(self, client, bomen_dataset, scope_fixture):
         response = client.get(
             reverse(
                 "dataset-detail",
@@ -74,7 +110,7 @@ class TestDatasetViews:
         assert response.status_code == 200
         assert response.data["versions"]["v1"]["tables"][0]["schema"]["properties"]
 
-    def test_dataset_scope_no_access(self, client, dataset_fixture, scope_fixture):
+    def test_dataset_scope_no_access(self, client, bomen_dataset, scope_fixture):
         response = client.get(
             reverse(
                 "dataset-detail",
@@ -89,7 +125,7 @@ class TestDatasetViews:
         assert response.status_code == 200
         assert response.data["versions"]["v1"]["tables"][0]["schema"]["properties"] == {}
 
-    def test_dataset_multiple_scope_access(self, client, dataset_fixture, scope_fixture):
+    def test_dataset_multiple_scope_access(self, client, bomen_dataset, scope_fixture):
         response = client.get(
             reverse(
                 "dataset-detail",
@@ -104,7 +140,7 @@ class TestDatasetViews:
         assert response.status_code == 200
         assert response.data["versions"]["v1"]["tables"][0]["schema"]["properties"]
 
-    def test_dataset_scope_version_access(self, client, dataset_fixture, scope_fixture):
+    def test_dataset_scope_version_access(self, client, bomen_dataset, scope_fixture):
         response = client.get(
             reverse(
                 "dataset-version",
@@ -120,7 +156,7 @@ class TestDatasetViews:
         assert response.status_code == 200
         assert response.data["tables"][0]["schema"]["properties"]
 
-    def test_dataset_scope_version_no_access(self, client, dataset_fixture, scope_fixture):
+    def test_dataset_scope_version_no_access(self, client, bomen_dataset, scope_fixture):
         response = client.get(
             reverse(
                 "dataset-version",
@@ -136,7 +172,7 @@ class TestDatasetViews:
         assert response.status_code == 200
         assert response.data["tables"][0]["schema"]["properties"] == {}
 
-    def test_dataset_scope_table_access(self, client, dataset_fixture, scope_fixture):
+    def test_dataset_scope_table_access(self, client, bomen_dataset, scope_fixture):
         response = client.get(
             reverse(
                 "dataset-table",
@@ -153,7 +189,7 @@ class TestDatasetViews:
         assert response.status_code == 200
         assert response.data["schema"]["properties"]
 
-    def test_dataset_scope_table_no_access(self, client, dataset_fixture, scope_fixture):
+    def test_dataset_scope_table_no_access(self, client, bomen_dataset, scope_fixture):
         response = client.get(
             reverse(
                 "dataset-table",
@@ -170,7 +206,7 @@ class TestDatasetViews:
         assert response.status_code == 200
         assert response.data["schema"]["properties"] == {}
 
-    def test_dataset_scope_table_field_access(self, client, dataset_fixture, scope_fixture):
+    def test_dataset_scope_table_field_access(self, client, bomen_dataset, scope_fixture):
         response = client.get(
             reverse(
                 "dataset-table",
@@ -187,7 +223,7 @@ class TestDatasetViews:
         assert response.status_code == 200
         assert "guid" in response.data["schema"]["properties"]
 
-    def test_dataset_scope_table_field_no_access(self, client, dataset_fixture, scope_fixture):
+    def test_dataset_scope_table_field_no_access(self, client, bomen_dataset, scope_fixture):
         response = client.get(
             reverse(
                 "dataset-table",
