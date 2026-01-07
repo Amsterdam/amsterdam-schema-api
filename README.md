@@ -129,3 +129,26 @@ pyenv install 3.12.4
 pyenv virtualenv 3.12.4 dataselectie-proxy
 echo dataselectie-proxy > .python-version
 ```
+
+## Changelog Management command
+
+The Changelog management command clones the Amsterdam Schema repository, goes through all new commits and extracts changes for each database.
+These changes are exported to a changelog table, and can be accessed with the `/changelog/` endpoint.
+
+### Usage
+
+```
+./manage.py changelog (--start_commit [start_commit]) (--end_commit [end_commit])
+```
+
+The command can be run with or without the following optional arguments:
+
+* `start_commit`: if a start commit is provided as a command line argument, the changelog will be generated starting from this commit.
+Commits made before this point in time will not be taken into account. If the start commit is not provided as a command line argument,
+the commit from the most recent changelog record will be used as the start commit. This is the default behaviour. If there are no records in the changelog table,
+a fixed commit (`418e137ff39c1d0ef9e224067627fe300ff9f4a1`)  will be the start commit.
+* `end_commit`: if an end commit is provided as a commind line argument, the changelog will be generated from the start commit to this commit.
+Commits made after this point of time will not be taken into account. If the end commit is not provided as a command line argument,
+the changelog be generated up to the current master branch. This is the default behaviour.
+
+Specifying a range of commits (by supplying a start and end commit) can be handy when there has been a change in the logic of the changelog command and you need to check if the change finds any previously missed changelog updates.
