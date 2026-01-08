@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import tempfile
 from datetime import datetime, timezone
 
 from django.core.management import BaseCommand
@@ -12,7 +13,9 @@ from schematools.types import DatasetSchema, SemVer
 
 from schema_api.models import ChangelogItem
 
-CHANGES_DIR = "tmp/changes/"
+TMP_DIR = tempfile.TemporaryDirectory()
+TMP_NAME = TMP_DIR.name
+CHANGES_DIR = f"{TMP_NAME}/changes/"
 
 
 class Command(BaseCommand):
@@ -47,6 +50,7 @@ class Command(BaseCommand):
                     "schema_api/scripts/clone_ams_schema.sh",
                     start_commit,
                     end_commit,
+                    TMP_NAME,
                 ],
                 check=True,
             )
@@ -55,11 +59,10 @@ class Command(BaseCommand):
             extend_changelog_table()
         except subprocess.CalledProcessError:
             self.stdout.write(
-                "Something went wrong with scripts/clone_ams_schema.sh, "
+                "Something went wrong in clone_ams_schema.sh or checkout_commits.sh, "
                 "tmp folder will be removed. Please run ./manage.py changelog again. "
             )
-            dir_path = os.path.join(os.getcwd(), "tmp")
-            shutil.rmtree(dir_path)
+            TMP_DIR.cleanup()
 
 
 def _get_most_recent_commit() -> str:
@@ -105,7 +108,7 @@ def extend_changelog_table():
                 process_commit(base_commit, update_commit)
 
                 # Remove archived repos of commits
-                dir_path = os.path.join(os.getcwd(), "tmp/changes")
+                dir_path = os.path.join(os.getcwd(), CHANGES_DIR)
                 for commit_dir in os.listdir(dir_path):
                     full_commit_dir = os.path.join(dir_path, commit_dir)
                     shutil.rmtree(full_commit_dir)
@@ -114,14 +117,14 @@ def extend_changelog_table():
             base_commit = update_commit
 
     # Remove the whole tmp folder
-    dir_path = os.path.join(os.getcwd(), "tmp")
+    dir_path = os.path.join(os.getcwd(), TMP_NAME)
     shutil.rmtree(dir_path)
 
 
 def _load_changelog_commits():
     """Load historical commits into master branch of Amsterdam Schema"""
 
-    with open("tmp/commits.txt") as f:
+    with open(f"{TMP_NAME}/commits.txt") as f:
         return [commit.strip("\n") for commit in f.readlines()]
 
 
@@ -129,7 +132,7 @@ def process_commit(base_commit, update_commit):
     """
     Check out 2 commits, extract the differences and write updates to Changelog table.
     """
-    args = [str(base_commit), str(update_commit)]
+    args = [str(base_commit), str(update_commit), TMP_NAME]
     # Checkout the repo for both commits and return the commit timestamp
     output = subprocess.run(  # noqa: S603
         ["bash", "schema_api/scripts/checkout_commits.sh", *args],
@@ -253,14 +256,6 @@ def extract_diffs_for_dataset(diffs: dict[str:list], update_ds: DatasetSchema) -
             db_updates.append(change_dict)
 
     return db_updates
-
-
-def _load_changelog_commits():
-    """
-    Load historical commits into master branch of Amsterdam Schema
-    """
-    with open("tmp/commits.txt") as f:
-        return [commit.strip("\n") for commit in f.readlines()]
 
 
 def _parse_deepdiff_field(field: str) -> list[str]:

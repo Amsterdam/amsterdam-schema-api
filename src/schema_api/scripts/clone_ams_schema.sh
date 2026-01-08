@@ -4,13 +4,13 @@ set -e
 
 start_commit=$1
 end_commit=$2
+tmp_dir=$3
 echo "Generating Changelog update from commit:"
 echo $start_commit
 echo "to commit:"
 echo $end_commit
 
-mkdir tmp
-cd tmp
+cd $tmp_dir
 mkdir changes
 echo "Cloning Amsterdam Schema repo..."
 git clone https://github.com/Amsterdam/amsterdam-schema.git
