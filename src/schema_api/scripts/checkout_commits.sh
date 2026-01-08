@@ -4,9 +4,10 @@ set -e
 # Load the 2 commits to compare from the command line
 base_commit=$1
 update_commit=$2
+tmp_dir=$3
 
 # Checkout and save the repo for the 2 commits
-cd tmp/amsterdam-schema
+cd $tmp_dir/amsterdam-schema
 mkdir ../changes/${base_commit}
 mkdir ../changes/${update_commit}
 
