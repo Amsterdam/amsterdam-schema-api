@@ -58,8 +58,6 @@ class Command(BaseCommand):
             # Write updates to Changelog table
             extend_changelog_table()
         except subprocess.CalledProcessError as e:
-            print(e)
-            print(e.stderr)
             print(e.with_traceback())
             self.stdout.write(
                 "Something went wrong in clone_ams_schema.sh or checkout_{base/update}_commit.sh, "
@@ -113,7 +111,6 @@ def extend_changelog_table():
                 # Remove base commit dir (we'll keep the update dir for the next commit)
                 dir_path = os.path.join(os.getcwd(), CHANGES_DIR)
                 full_commit_dir = os.path.join(dir_path, base_commit)
-                print("Removing: ", full_commit_dir)
                 shutil.rmtree(full_commit_dir)
 
             # Update commit will be base for next commit
@@ -185,7 +182,7 @@ def process_commit(base_commit, update_commit):
                 except IntegrityError:
                     print(f"* {update} already exists in database.")
 
-    # Let user know if no changelog update are found
+    # Let user know if no changelog updates are found
     if not update_flag:
         print("No changelog updates extracted for this commit.\n")
 
