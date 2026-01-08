@@ -56,7 +56,10 @@ class Command(BaseCommand):
 
             # Write updates to Changelog table
             extend_changelog_table()
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
+            print(e)
+            print(e.stderr)
+            print(e.with_traceback())
             self.stdout.write(
                 "Something went wrong in clone_ams_schema.sh or checkout_{base/update}_commit.sh, "
                 "tmp folder will be removed. Please run ./manage.py changelog again. "
