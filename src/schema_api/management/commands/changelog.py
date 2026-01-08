@@ -143,6 +143,10 @@ def process_commit(base_commit, update_commit):
 
     # Save the date
     timestamp = output.stdout.strip()
+    date_time = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+    if date_time < datetime(2025, 12, 31, 0, 0, 0, tzinfo=timezone.utc):
+        print("Commit is too old, not compatible with meta-schema@v4")
+        return
 
     # Extract differences between schemas
     dataset_diffs = compare_schemas(base_commit, update_commit)
@@ -157,9 +161,7 @@ def process_commit(base_commit, update_commit):
 
             # Add commit hash and commit timestamp
             update["commit_hash"] = update_commit
-            update["committed_at"] = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").replace(
-                tzinfo=timezone.utc
-            )
+            update["committed_at"] = date_time
 
             # Create db instance of update (only allow unique entries)
             try:
