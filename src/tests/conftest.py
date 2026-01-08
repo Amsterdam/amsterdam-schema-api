@@ -7,6 +7,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.core.management import call_command
 from rest_framework.request import Request
 from rest_framework.test import APIClient, APIRequestFactory
+from schematools.loaders import FileSystemSchemaLoader
 
 from tests.utils import api_request_with_scopes, to_drf_request
 
@@ -91,3 +92,67 @@ def profile_fixture(here):
     profile_path = here / "files/profiles/brkdataportaalgebruiker.json"
     args = [profile_path]
     call_command("import_profiles", *args)
+
+
+@pytest.fixture()
+def base_dataset(here):
+    path = here / "files/datasets/changelog/base_dataset.json"
+    return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
+        path, allow_external_files=True
+    )
+
+
+@pytest.fixture()
+def update_table(here):
+    path = here / "files/datasets/changelog/update_table.json"
+    return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
+        path, allow_external_files=True
+    )
+
+
+@pytest.fixture()
+def create_table(here):
+    path = here / "files/datasets/changelog/create_table.json"
+    return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
+        path, allow_external_files=True
+    )
+
+
+@pytest.fixture()
+def create_dataset_version(here):
+    path = here / "files/datasets/changelog/create_dataset_version.json"
+    return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
+        path, allow_external_files=True
+    )
+
+
+@pytest.fixture()
+def status_dataset(here):
+    path = here / "files/datasets/changelog/status_dataset.json"
+    return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
+        path, allow_external_files=True
+    )
+
+
+@pytest.fixture()
+def update_under_development_dataset(here):
+    path = here / "files/datasets/changelog/update_under_development_dataset.json"
+    return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
+        path, allow_external_files=True
+    )
+
+
+@pytest.fixture()
+def update_table_create_ds(here):
+    path = here / "files/datasets/changelog/update_table_create_ds.json"
+    return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
+        path, allow_external_files=True
+    )
+
+
+@pytest.fixture()
+def patch_table(here):
+    path = here / "files/datasets/changelog/patch_table.json"
+    return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
+        path, allow_external_files=True
+    )
