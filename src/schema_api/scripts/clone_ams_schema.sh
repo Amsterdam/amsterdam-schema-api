@@ -5,7 +5,7 @@ set -e
 start_commit=$1
 end_commit=$2
 tmp_dir=$3
-echo "Generating Changelog update from commit:"
+echo "Generating changelog updates from commit:"
 echo $start_commit
 echo "to commit:"
 echo $end_commit

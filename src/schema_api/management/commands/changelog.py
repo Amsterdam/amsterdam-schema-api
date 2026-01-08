@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 import tempfile
 from datetime import datetime, timezone
@@ -19,7 +18,7 @@ CHANGES_DIR = f"{TMP_NAME}/changes/"
 
 
 class Command(BaseCommand):
-    help = "Write updates to Changelog table  for datasets from Amsterdam Schema."
+    help = "Write updates to Changelog table for datasets from Amsterdam Schema."
 
     def add_arguments(self, parser) -> None:
         parser.add_argument(
@@ -59,7 +58,7 @@ class Command(BaseCommand):
             extend_changelog_table()
         except subprocess.CalledProcessError:
             self.stdout.write(
-                "Something went wrong in clone_ams_schema.sh or checkout_commits.sh, "
+                "Something went wrong in clone_ams_schema.sh or checkout_{base/update}_commit.sh, "
                 "tmp folder will be removed. Please run ./manage.py changelog again. "
             )
             TMP_DIR.cleanup()
@@ -107,18 +106,11 @@ def extend_changelog_table():
                 # Extract changelog updates from update commit
                 process_commit(base_commit, update_commit)
 
-                # Remove archived repos of commits
-                dir_path = os.path.join(os.getcwd(), CHANGES_DIR)
-                for commit_dir in os.listdir(dir_path):
-                    full_commit_dir = os.path.join(dir_path, commit_dir)
-                    shutil.rmtree(full_commit_dir)
-
             # Update commit will be base for next commit
             base_commit = update_commit
 
-    # Remove the whole tmp folder
-    dir_path = os.path.join(os.getcwd(), TMP_NAME)
-    shutil.rmtree(dir_path)
+    # Clean up tmp folder
+    TMP_DIR.cleanup()
 
 
 def _load_changelog_commits():
@@ -132,10 +124,19 @@ def process_commit(base_commit, update_commit):
     """
     Check out 2 commits, extract the differences and write updates to Changelog table.
     """
-    args = [str(base_commit), str(update_commit), TMP_NAME]
-    # Checkout the repo for both commits and return the commit timestamp
+
+    # Only check out base commit if it doesn't exist
+    dir_path = os.path.join(os.getcwd(), CHANGES_DIR)
+    if base_commit not in os.listdir(dir_path):
+        args = [str(base_commit), TMP_NAME]
+        subprocess.run(  # noqa: S603
+            ["bash", "schema_api/scripts/checkout_base_commit.sh", *args], check=True
+        )
+
+    # Update commit will always be new
+    args = [str(update_commit), TMP_NAME]
     output = subprocess.run(  # noqa: S603
-        ["bash", "schema_api/scripts/checkout_commits.sh", *args],
+        ["bash", "schema_api/scripts/checkout_update_commit.sh", *args],
         check=True,
         capture_output=True,
         text=True,
@@ -151,26 +152,32 @@ def process_commit(base_commit, update_commit):
     # Extract differences between schemas
     dataset_diffs = compare_schemas(base_commit, update_commit)
 
+    update_flag = False
     for ds in dataset_diffs:
         db_updates = dataset_diffs[ds]
         if db_updates:
+            update_flag = True
+
             print(
                 f"Adding {len(db_updates)} changelog update(s) for dataset {ds.id} to database..."
             )
-        for update in db_updates:
+            for update in db_updates:
 
-            # Add commit hash and commit timestamp
-            update["commit_hash"] = update_commit
-            update["committed_at"] = date_time
+                # Add commit hash and commit timestamp
+                update["commit_hash"] = update_commit
+                update["committed_at"] = date_time
 
-            # Create db instance of update (only allow unique entries)
-            try:
-                item = ChangelogItem(**update)
-                print(f"* {item}")
-                item.save()
-            except IntegrityError:
-                print(f"* {update} already exists in database.")
-                # Or probably log
+                # Create db instance of update (only allow unique entries)
+                try:
+                    item = ChangelogItem(**update)
+                    print(f"* {item}")
+                    item.save()
+                except IntegrityError:
+                    print(f"* {update} already exists in database.")
+
+    # Let user know if no changelog update are found
+    if not update_flag:
+        print("No changelog updates extracted for this commit.\n")
 
 
 def compare_schemas(base_commit: str, update_commit: str) -> dict[str:list]:
