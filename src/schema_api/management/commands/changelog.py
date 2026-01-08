@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import tempfile
 from datetime import datetime, timezone
@@ -108,6 +109,12 @@ def extend_changelog_table():
 
                 # Extract changelog updates from update commit
                 process_commit(base_commit, update_commit)
+
+                # Remove base commit dir (we'll keep the update dir for the next commit)
+                dir_path = os.path.join(os.getcwd(), CHANGES_DIR)
+                full_commit_dir = os.path.join(dir_path, base_commit)
+                print("Removing: ", full_commit_dir)
+                shutil.rmtree(full_commit_dir)
 
             # Update commit will be base for next commit
             base_commit = update_commit
