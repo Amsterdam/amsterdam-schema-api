@@ -2,7 +2,7 @@ from pathlib import Path
 
 import environ
 from corsheaders.defaults import default_headers
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger import json
 
 env = environ.Env()
 _USE_SECRET_STORE = Path("/mnt/secrets-store").exists()
@@ -135,7 +135,7 @@ locals().update(env.email_url(default="smtp://"))
 # -- Logging
 
 
-class CustomJsonFormatter(jsonlogger.JsonFormatter):
+class CustomJsonFormatter(json.JsonFormatter):
     def __init__(self, *args, **kwargs):
         # Make sure some 'extra' fields are not included:
         super().__init__(*args, **kwargs)
