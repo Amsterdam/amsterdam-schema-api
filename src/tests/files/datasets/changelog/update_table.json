@@ -1,0 +1,125 @@
+{
+    "id": "bomen",
+    "type": "dataset",
+    "authorizationGrantor": "Directie V&OR, Gemeente Amsterdam",
+    "theme": [
+        "Groen"
+    ],
+    "homepage": "https://data.amsterdam.nl",
+    "owner": "Directie V&OR, Gemeente Amsterdam",
+    "spatialDescription": "Gemeente Amsterdam",
+    "title": "bomen",
+    "language": "nl",
+    "dateCreated": "2023-06-16T00:00:00+01:00",
+    "license": "openbaar, tenzij anders aangegeven / behoudens uitzonderingen",
+    "creator": "Datateam Beeldschoon/BOR",
+    "publisher": {
+        "name": "Datateam Beheer Openbare Ruimte",
+        "id": "BOR",
+        "shortname": "bor",
+        "tags": {
+            "team": "beheer openbare ruimte",
+            "costcenter": "73606323.4810"
+        },
+        "type": "publisher"
+    },
+    "description": "dataset met actuele informatie over de bomen in beheer van gemeente Amsterdam",
+    "keywords": [
+        "boom"
+    ],
+    "crs": "EPSG:28992",
+    "temporalUnit": "",
+    "defaultVersion": "v1",
+    "versions": {
+        "v1": {
+            "enableAPI": "true",
+            "status": "stable",
+            "version": "1.3.5",
+            "tables": [
+                {
+                    "id": "groeiplaatsmedebeheer",
+                    "type": "table",
+                    "version": "1.1.0",
+                    "status": "stable",
+                    "title": "Groeiplaats medebeheer van bomen",
+                    "description": "",
+                    "auth": "FP/MDW",
+                    "reasonsNonPublic": [
+                        "5.1 2d: Zwaarwegend belang: inspectie, controle en toezicht door bestuursorganen"
+                    ],
+                    "identifier": "id",
+                    "schema": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "schema",
+                            "id"
+                        ],
+                        "display": "id",
+                        "properties": {
+                            "schema": {
+                                "$ref": "https://schemas.data.amsterdam.nl/schema@v3.1.0#/definitions/schema"
+                            },
+                            "id": {
+                                "type": "integer",
+                                "title": "ID",
+                                "description": "Unieke aanduiding van record"
+                            },
+                            "groeiplaatsBoom": {
+                                "type": "integer",
+                                "title": "Groeiplaats boom",
+                                "description": "De unieke aanduiding van de groeiplaats van de boom"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "v2": {
+            "enableAPI": "true",
+            "status": "stable",
+            "version": "1.3.5",
+            "tables": [
+                {
+                    "id": "groeiplaatsmedebeheer",
+                    "type": "table",
+                    "version": "1.1.0",
+                    "status": "stable",
+                    "title": "Groeiplaats medebeheer van bomen",
+                    "description": "",
+                    "auth": "FP/MDW",
+                    "reasonsNonPublic": [
+                        "5.1 2d: Zwaarwegend belang: inspectie, controle en toezicht door bestuursorganen"
+                    ],
+                    "identifier": "id",
+                    "schema": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "schema",
+                            "id"
+                        ],
+                        "display": "id",
+                        "properties": {
+                            "schema": {
+                                "$ref": "https://schemas.data.amsterdam.nl/schema@v3.1.0#/definitions/schema"
+                            },
+                            "id": {
+                                "type": "integer",
+                                "title": "ID",
+                                "description": "Unieke aanduiding van record"
+                            },
+                            "groeiplaatsBoom": {
+                                "type": "integer",
+                                "title": "Groeiplaats boom",
+                                "description": "De unieke aanduiding van de groeiplaats van de boom"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

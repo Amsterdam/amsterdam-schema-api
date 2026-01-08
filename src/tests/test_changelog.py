@@ -1,0 +1,214 @@
+import sys
+from datetime import datetime, timezone
+
+import pytest
+from django.core.management import call_command
+from schema_api.models import ChangelogItem
+from schematools.types import DatasetSchema
+
+sys.path.append("..")
+
+from schema_api.management.commands.changelog import extract_diffs_for_dataset
+
+
+class TestChangelogCommand:
+
+    def test_changelog_deepdiff_field_names(
+        self,
+        base_dataset: DatasetSchema,
+        create_table: DatasetSchema,
+        update_table_create_ds: DatasetSchema,
+    ):
+        """
+        Test if field names from DeepDiff output remain the same
+        """
+        diffs_1 = base_dataset.get_diffs(create_table)
+        deepdiff_fields = list(diffs_1)
+        diffs_2 = base_dataset.get_diffs(update_table_create_ds)
+        deepdiff_fields.extend(list(diffs_2))
+        assert set(deepdiff_fields) == {
+            "iterable_item_added",
+            "dictionary_item_added",
+            "values_changed",
+        }
+
+    @pytest.mark.django_db
+    def test_changelog_command(self):
+        """
+        Test the full changelog command with specified start and end commit.
+        Also test commit hash and commit_at timestamp,
+        these cannot be tested in the following tests.
+        """
+
+        start_commit = "c2e69fd322e3465b3c234949336288f8a0ee2ec7"
+        end_commit = "d7e38a77977fa9cb89dc833d882df00df409e7d8"
+        args = ["--start_commit", start_commit, "--end_commit", end_commit]
+
+        call_command("changelog", *args)
+
+        assert ChangelogItem.objects.count() == 1
+
+        item1 = ChangelogItem.objects.get(object_id="civieleconstructies/v0")
+        print(item1)
+        assert item1.commit_hash == end_commit
+        assert item1.committed_at == datetime(2026, 1, 5, 13, 59, 5, tzinfo=timezone.utc)
+
+    def test_changelog_update_table_a(
+        self,
+        base_dataset: DatasetSchema,
+        update_table: DatasetSchema,
+    ):
+        """
+        Update on table that is used in 2 dataset versions.
+        Should result in a seperate update for both versions.
+        """
+
+        # Mimic functionality of changelog command
+        diffs = base_dataset.get_diffs(update_table)
+        db_updates = extract_diffs_for_dataset(diffs, update_table)
+
+        assert len(db_updates) == 2
+        assert db_updates[0] == {
+            "dataset_id": "bomen",
+            "status": "stable",
+            "object_id": "bomen/v1/groeiplaatsmedebeheer",
+            "label": "update",
+        }
+        assert db_updates[1] == {
+            "dataset_id": "bomen",
+            "status": "stable",
+            "object_id": "bomen/v2/groeiplaatsmedebeheer",
+            "label": "update",
+        }
+
+    def test_changelog_create_table(
+        self,
+        base_dataset: DatasetSchema,
+        create_table: DatasetSchema,
+    ):
+        """ """
+
+        # Mimic functionality of changelog command
+        diffs = base_dataset.get_diffs(create_table)
+        db_updates = extract_diffs_for_dataset(diffs, create_table)
+
+        assert len(db_updates) == 2
+        assert db_updates[0] == {
+            "dataset_id": "bomen",
+            "status": "stable",
+            "object_id": "bomen/v1/stamgegevens",
+            "label": "create",
+        }
+        assert db_updates[1] == {
+            "dataset_id": "bomen",
+            "status": "stable",
+            "object_id": "bomen/v2/stamgegevens",
+            "label": "create",
+        }
+
+    def test_changelog_create_dataset_version(
+        self,
+        base_dataset: DatasetSchema,
+        create_dataset_version: DatasetSchema,
+    ):
+        """ """
+
+        # Mimic functionality of changelog command
+        diffs = base_dataset.get_diffs(create_dataset_version)
+        db_updates = extract_diffs_for_dataset(diffs, create_dataset_version)
+
+        assert len(db_updates) == 1
+        assert db_updates[0] == {
+            "dataset_id": "bomen",
+            "status": "under_development",
+            "object_id": "bomen/v3",
+            "label": "create",
+        }
+
+    def test_changelog_status_dataset(
+        self,
+        base_dataset: DatasetSchema,
+        status_dataset: DatasetSchema,
+    ):
+        """
+        Different than other tests: update_ds contains under_development v2 version,
+        this is 'set to' stable (default value) in the base dataset
+        """
+
+        # Mimic functionality of changelog command
+        diffs = status_dataset.get_diffs(base_dataset)
+        db_updates = extract_diffs_for_dataset(diffs, base_dataset)
+
+        assert len(db_updates) == 1
+        assert db_updates[0] == {
+            "dataset_id": "bomen",
+            "status": "stable",
+            "object_id": "bomen/v2",
+            "label": "status",
+        }
+
+    def test_changelog_update_under_development_dataset(
+        self,
+        status_dataset: DatasetSchema,
+        update_under_development_dataset: DatasetSchema,
+    ):
+        """
+        Different than other tests: update_ds contains under_development v2 version,
+        this is 'set to' stable (default value) in the base dataset
+        """
+
+        # Mimic functionality of changelog command
+        diffs = status_dataset.get_diffs(update_under_development_dataset)
+        db_updates = extract_diffs_for_dataset(diffs, status_dataset)
+
+        assert len(db_updates) == 1
+        assert db_updates[0] == {
+            "dataset_id": "bomen",
+            "label": "update",
+            "status": "under_development",
+            "object_id": "bomen/v2/groeiplaatsmedebeheer",
+        }
+
+    def test_changelog_update_table_create_ds(
+        self,
+        base_dataset: DatasetSchema,
+        update_table_create_ds: DatasetSchema,
+    ):
+        """ """
+
+        # Mimic functionality of changelog command
+        diffs = base_dataset.get_diffs(update_table_create_ds)
+        db_updates = extract_diffs_for_dataset(diffs, update_table_create_ds)
+
+        assert len(db_updates) == 3
+        assert db_updates[0] == {
+            "dataset_id": "bomen",
+            "status": "stable",
+            "object_id": "bomen/v1/groeiplaatsmedebeheer",
+            "label": "update",
+        }
+        assert db_updates[1] == {
+            "dataset_id": "bomen",
+            "status": "stable",
+            "object_id": "bomen/v2/groeiplaatsmedebeheer",
+            "label": "update",
+        }
+        assert db_updates[2] == {
+            "dataset_id": "bomen",
+            "status": "under_development",
+            "object_id": "bomen/v3",
+            "label": "create",
+        }
+
+    def test_changelog_patch_table(
+        self,
+        base_dataset: DatasetSchema,
+        patch_table: DatasetSchema,
+    ):
+        """ """
+
+        # Mimic functionality of changelog command
+        diffs = base_dataset.get_diffs(patch_table)
+        db_updates = extract_diffs_for_dataset(diffs, patch_table)
+
+        assert db_updates == []
