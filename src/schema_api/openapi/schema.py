@@ -233,7 +233,7 @@ FROM_DATE_PARAM = OpenApiParameter(
 )
 
 list_changelog_schema = extend_schema(
-    description="Vraag alle changelog items op",
+    description="Vraag alle changelog items op, gesorteerd van nieuwste naar oudste",
     summary="Alle changelog items",
     parameters=[FROM_DATE_PARAM],
     responses={

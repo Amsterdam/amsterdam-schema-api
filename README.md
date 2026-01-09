@@ -72,6 +72,11 @@ The following URLs are available:
 | `/publishers/<publisher_id>/` | Publisher details |
 | `/profiles/` | All available profiles |
 | `/profiles/<profiles_id>/` | Profile details |
+| `/changelog/` | All changelog items |
+| `/changelog/?from_date='YYYY-MM-DD'/` | Changelog items newer than provided from_date |
+| `/changelog/<dataset_id>/` | Changelog items for a specific dataset |
+| `/changelog/<dataset_id>?from_date='YYYY-MM-DD'/` | Changelog items for a specific dataset, newer than provided from_date |
+| `/changelog/<changelog_id>/` | Changelog item details |
 
 ## Environment Settings
 
