@@ -163,6 +163,7 @@ class ChangelogViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return ChangelogItem.objects.all().order_by("-committed_at")
 
+    @schema.list_changelog_schema
     def list(self, request):
         queryset = self.get_queryset()
 
@@ -178,12 +179,14 @@ class ChangelogViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    @schema.retrieve_changelog_schema
     def retrieve(self, request, pk):
         queryset = self.get_queryset()
         item = get_object_or_404(queryset, pk=pk)
         serializer = self.get_serializer(item)
         return Response(serializer.data)
 
+    @schema.list_changelog_schema_dataset
     @action(detail=False, url_path=r"(?P<dataset>[A-Za-z_]+)")
     def dataset(self, request, dataset):
         queryset = self.get_queryset().filter(dataset_id=dataset)

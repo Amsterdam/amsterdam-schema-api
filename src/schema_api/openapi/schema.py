@@ -4,6 +4,7 @@ from drf_spectacular.openapi import AutoSchema as _AutoSchema
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, OpenApiResponse, extend_schema
 from schematools.types import DatasetSchema
 
+from schema_api.serializers import ChangelogItemSerializer
 from schema_api.utils import simplify_json
 
 
@@ -222,4 +223,46 @@ retrieve_profile_schema = extend_schema(
         )
     },
     tags=["Profiel"],
+)
+
+FROM_DATE_PARAM = OpenApiParameter(
+    name="from_date",
+    description="Datum (YYYY-MM-DD) als string om changelog items te filteren op "
+    "de datum van de commit. Alleen changelog items waarvan de commit datum na de "
+    "from_date ligt worden getoond.",
+)
+
+list_changelog_schema = extend_schema(
+    description="Vraag alle changelog items op",
+    summary="Alle changelog items",
+    parameters=[FROM_DATE_PARAM],
+    responses={
+        200: OpenApiResponse(
+            response=ChangelogItemSerializer,
+        )
+    },
+    tags=["Changelog"],
+)
+
+list_changelog_schema_dataset = extend_schema(
+    description="Vraag alle changelog items op van een bepaalde dataset",
+    summary="Alle changelog items van dataset",
+    parameters=[FROM_DATE_PARAM],
+    responses={
+        200: OpenApiResponse(
+            response=ChangelogItemSerializer,
+        )
+    },
+    tags=["Changelog"],
+)
+
+retrieve_changelog_schema = extend_schema(
+    description="Vraag een changelog item op",
+    summary="Opgevraagd changelog item",
+    responses={
+        200: OpenApiResponse(
+            response=ChangelogItemSerializer,
+        )
+    },
+    tags=["Changelog"],
 )
