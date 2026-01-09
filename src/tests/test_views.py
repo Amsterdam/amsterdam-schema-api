@@ -1,5 +1,8 @@
+from datetime import date
+
 import pytest
 from django.urls import reverse
+from django.utils.dateparse import parse_datetime
 
 
 def test_root_view(client):
@@ -284,3 +287,76 @@ class TestProfileViews:
         )
         assert response.status_code == 200
         assert response.data["id"] == "brkdataportaalgebruiker"
+
+
+@pytest.mark.django_db
+class TestChangelogViews:
+    def test_changelog_list_view(self, client, changelog_items):
+        response = client.get(reverse("changelog-list"))
+        assert response.status_code == 200
+        assert response.data["count"] == 3
+        response = response.data["results"][0]
+        assert response["object_id"] == "hrKvk/v1/functievervullingen"
+        assert response["description"] == "Update table hrKvk/v1/functievervullingen."
+
+    def test_changelog_detail_view(self, client, changelog_items):
+        response = client.get(
+            reverse(
+                "changelog-detail",
+                kwargs={"pk": "1"},
+            )
+        )
+        assert response.status_code == 200
+        assert response.data["object_id"] == "hrKvk/v1/functievervullingen"
+        assert response.data["description"] == "Update table hrKvk/v1/functievervullingen."
+
+    def test_changelog_list_from_date(self, client, changelog_items):
+        from_date = "2026-01-01"
+
+        response = client.get(
+            reverse(
+                "changelog-list",
+                query={
+                    "from_date": from_date,
+                },
+            )
+        )
+        assert response.status_code == 200
+        assert response.data["count"] == 2
+
+        iso_date = date.fromisoformat(from_date)
+        for item in response.data["results"]:
+            item_date = parse_datetime(item["committed_at"])
+            assert item_date.date() == iso_date
+
+    def test_changelog_list_view_dataset(self, client, changelog_items):
+        response = client.get(
+            reverse(
+                "changelog-dataset",
+                kwargs={"dataset": "hrKvk"},
+            )
+        )
+        assert response.status_code == 200
+        assert response.data["count"] == 2
+        for item in response.data["results"]:
+            assert item["dataset_id"] == "hrKvk"
+
+    def test_changelog_list_view_dataset_from_date(self, client, changelog_items):
+        from_date = "2026-01-01"
+        response = client.get(
+            reverse(
+                "changelog-dataset",
+                kwargs={"dataset": "hrKvk"},
+                query={
+                    "from_date": from_date,
+                },
+            )
+        )
+        assert response.status_code == 200
+        assert response.data["count"] == 1
+
+        iso_date = date.fromisoformat(from_date)
+        for item in response.data["results"]:
+            assert item["dataset_id"] == "hrKvk"
+            item_date = parse_datetime(item["committed_at"])
+            assert item_date.date() == iso_date

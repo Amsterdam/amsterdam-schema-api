@@ -11,6 +11,8 @@ from schematools.types import DatasetSchema
 
 import schema_api.openapi.schema as schema
 
+from .models import ChangelogItem
+from .serializers import ChangelogItemSerializer
 from .utils import simplify_json
 
 
@@ -153,3 +155,47 @@ class PublisherViewSet(BaseViewSet):
 )
 class ProfileViewSet(BaseViewSet):
     queryset = Profile.objects.all()
+
+
+class ChangelogViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ChangelogItemSerializer
+
+    def get_queryset(self):
+        return ChangelogItem.objects.all().order_by("-committed_at")
+
+    def list(self, request):
+        queryset = self.get_queryset()
+
+        # From_date filtering
+        date_param = request.query_params.getlist("from_date")
+        if date_param:
+            queryset = queryset.filter(committed_at__gte=date_param[0])
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk):
+        queryset = self.get_queryset()
+        item = get_object_or_404(queryset, pk=pk)
+        serializer = self.get_serializer(item)
+        return Response(serializer.data)
+
+    @action(detail=False, url_path=r"(?P<dataset>[A-Za-z_]+)")
+    def dataset(self, request, dataset):
+        queryset = self.get_queryset().filter(dataset_id=dataset)
+
+        # From_date filtering
+        date_param = request.query_params.getlist("from_date")
+        if date_param:
+            queryset = queryset.filter(committed_at__gte=date_param[0])
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

@@ -7,6 +7,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.core.management import call_command
 from rest_framework.request import Request
 from rest_framework.test import APIClient, APIRequestFactory
+from schema_api.models import ChangelogItem
 from schematools.loaders import FileSystemSchemaLoader
 
 from tests.utils import api_request_with_scopes, to_drf_request
@@ -156,3 +157,38 @@ def patch_table(here):
     return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
         path, allow_external_files=True
     )
+
+
+@pytest.fixture()
+def changelog_items(here):
+    changelog_items = [
+        {
+            "id": 1,
+            "dataset_id": "hrKvk",
+            "status": "stable",
+            "object_id": "hrKvk/v1/functievervullingen",
+            "label": "update",
+            "commit_hash": "COMMIT_HASH",
+            "committed_at": "2025-11-04T14:36:05+01:00",
+        },
+        {
+            "id": 2,
+            "dataset_id": "hrKvk",
+            "status": "stable",
+            "object_id": "hrKvk/v1/functievervullingen",
+            "label": "update",
+            "commit_hash": "COMMIT_HASH",
+            "committed_at": "2026-1-01T14:36:05+01:00",
+        },
+        {
+            "id": 3,
+            "dataset_id": "civieleconstructies",
+            "status": "under_development",
+            "object_id": "civieleconstructies/v0",
+            "label": "create",
+            "commit_hash": "COMMIT_HASH",
+            "committed_at": "2026-1-01T14:36:05+01:00",
+        },
+    ]
+    for item in changelog_items:
+        ChangelogItem.objects.create(**item)
