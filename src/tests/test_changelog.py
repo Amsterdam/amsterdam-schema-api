@@ -49,7 +49,6 @@ class TestChangelogCommand:
         assert ChangelogItem.objects.count() == 1
 
         item1 = ChangelogItem.objects.get(object_id="civieleconstructies/v0")
-        print(item1)
         assert item1.commit_hash == end_commit
         assert item1.committed_at == datetime(2026, 1, 5, 13, 59, 5, tzinfo=timezone.utc)
 
