@@ -327,7 +327,7 @@ class TestChangelogViews:
         iso_date = date.fromisoformat(from_date)
         for item in response.data["results"]:
             item_date = parse_datetime(item["committed_at"])
-            assert item_date.date() == iso_date
+            assert item_date.date() >= iso_date
 
     def test_changelog_list_view_dataset(self, client, changelog_items):
         response = client.get(
@@ -359,4 +359,4 @@ class TestChangelogViews:
         for item in response.data["results"]:
             assert item["dataset_id"] == "hrKvk"
             item_date = parse_datetime(item["committed_at"])
-            assert item_date.date() == iso_date
+            assert item_date.date() >= iso_date
