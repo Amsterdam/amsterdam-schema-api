@@ -22,27 +22,27 @@ echo "Done!"
 git pull
 git fetch origin master
 
-# First fetch all commits from start commit to head
+# First fetch all commits from start commit to head (we get the reverse order)
 commits=$(git log $start_commit^..HEAD --first-parent master --pretty=format:"%H")
 
 # Only save commits between start and end (if end commit is specified)
 flag="False"
 
-original_array=()
+new_to_old_commits=()
 for commit in $commits; do
     if [[ "$commit" == "$end_commit" ]]; then
         flag=True
     fi
     if [[ "$flag" == "True" ]] || [[ "$end_commit" == "HEAD" ]]; then
-        original_array+=("$commit")
+        new_to_old_commits+=("$commit")
     fi
 done
 
 # Reverse the array
-reversed_commits=()
-for ((i=${#original_array[@]}-1; i>=0; i--)); do
-    reversed_commits+=("${original_array[i]}")
+old_to_new_commits=()
+for ((i=${#new_to_old_commits[@]}-1; i>=0; i--)); do
+    old_to_new_commits+=("${new_to_old_commits[i]}")
 done
 
 # Save the array
-printf "%s\n" "${reversed_commits[@]}" > ../commits.txt
+printf "%s\n" "${old_to_new_commits[@]}" > ../commits.txt

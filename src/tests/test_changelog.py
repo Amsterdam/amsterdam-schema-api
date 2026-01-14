@@ -72,13 +72,13 @@ class TestChangelogCommand:
             "dataset_id": "bomen",
             "status": "stable",
             "object_id": "bomen/v1/groeiplaatsmedebeheer",
-            "label": "update",
+            "operation": "update",
         }
         assert db_updates[1] == {
             "dataset_id": "bomen",
             "status": "stable",
             "object_id": "bomen/v2/groeiplaatsmedebeheer",
-            "label": "update",
+            "operation": "update",
         }
 
     def test_changelog_create_table(
@@ -86,7 +86,10 @@ class TestChangelogCommand:
         base_dataset: DatasetSchema,
         create_table: DatasetSchema,
     ):
-        """ """
+        """
+        New table added for 2 dataset versions.
+        Should result in a seperate update for both versions.
+        """
 
         # Mimic functionality of changelog command
         diffs = base_dataset.get_diffs(create_table)
@@ -97,13 +100,13 @@ class TestChangelogCommand:
             "dataset_id": "bomen",
             "status": "stable",
             "object_id": "bomen/v1/stamgegevens",
-            "label": "create",
+            "operation": "create",
         }
         assert db_updates[1] == {
             "dataset_id": "bomen",
             "status": "stable",
             "object_id": "bomen/v2/stamgegevens",
-            "label": "create",
+            "operation": "create",
         }
 
     def test_changelog_create_dataset_version(
@@ -111,7 +114,9 @@ class TestChangelogCommand:
         base_dataset: DatasetSchema,
         create_dataset_version: DatasetSchema,
     ):
-        """ """
+        """
+        Tests if new dataset version update results in the desired changelog update
+        """
 
         # Mimic functionality of changelog command
         diffs = base_dataset.get_diffs(create_dataset_version)
@@ -122,7 +127,7 @@ class TestChangelogCommand:
             "dataset_id": "bomen",
             "status": "under_development",
             "object_id": "bomen/v3",
-            "label": "create",
+            "operation": "create",
         }
 
     def test_changelog_status_dataset(
@@ -131,7 +136,7 @@ class TestChangelogCommand:
         status_dataset: DatasetSchema,
     ):
         """
-        Different than other tests: update_ds contains under_development v2 version,
+        Different than other tests: status_dataset contains under_development v2 version,
         this is 'set to' stable (default value) in the base dataset
         """
 
@@ -144,7 +149,7 @@ class TestChangelogCommand:
             "dataset_id": "bomen",
             "status": "stable",
             "object_id": "bomen/v2",
-            "label": "status",
+            "operation": "status",
         }
 
     def test_changelog_update_under_development_dataset(
@@ -153,8 +158,8 @@ class TestChangelogCommand:
         update_under_development_dataset: DatasetSchema,
     ):
         """
-        Different than other tests: update_ds contains under_development v2 version,
-        this is 'set to' stable (default value) in the base dataset
+        Tests if an update in a table (added new field groeiplaatsBoom) in an under_development
+        dataset version, results in the desired changelog update.
         """
 
         # Mimic functionality of changelog command
@@ -164,7 +169,7 @@ class TestChangelogCommand:
         assert len(db_updates) == 1
         assert db_updates[0] == {
             "dataset_id": "bomen",
-            "label": "update",
+            "operation": "update",
             "status": "under_development",
             "object_id": "bomen/v2/groeiplaatsmedebeheer",
         }
@@ -174,7 +179,10 @@ class TestChangelogCommand:
         base_dataset: DatasetSchema,
         update_table_create_ds: DatasetSchema,
     ):
-        """ """
+        """
+        Tests if 2 different changelog updates (create a table voor 2 dataset versions
+        and create a new dataset version), results in the desired db updates.
+        """
 
         # Mimic functionality of changelog command
         diffs = base_dataset.get_diffs(update_table_create_ds)
@@ -185,19 +193,19 @@ class TestChangelogCommand:
             "dataset_id": "bomen",
             "status": "stable",
             "object_id": "bomen/v1/groeiplaatsmedebeheer",
-            "label": "update",
+            "operation": "update",
         }
         assert db_updates[1] == {
             "dataset_id": "bomen",
             "status": "stable",
             "object_id": "bomen/v2/groeiplaatsmedebeheer",
-            "label": "update",
+            "operation": "update",
         }
         assert db_updates[2] == {
             "dataset_id": "bomen",
             "status": "under_development",
             "object_id": "bomen/v3",
-            "label": "create",
+            "operation": "create",
         }
 
     def test_changelog_patch_table(
@@ -205,7 +213,9 @@ class TestChangelogCommand:
         base_dataset: DatasetSchema,
         patch_table: DatasetSchema,
     ):
-        """ """
+        """
+        Tests if patch update to a table does not result in a changelog update.
+        """
 
         # Mimic functionality of changelog command
         diffs = base_dataset.get_diffs(patch_table)
