@@ -22,7 +22,6 @@ RUN apt update && apt install --no-install-recommends -y \
     build-essential \
     curl \
     libgdal28 \
-    netcat-openbsd \
     git
 
 # Copy python build artifacts from builder image

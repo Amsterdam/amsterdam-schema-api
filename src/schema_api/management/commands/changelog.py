@@ -16,6 +16,7 @@ from schema_api.models import ChangelogItem
 TMP_DIR = tempfile.TemporaryDirectory()
 TMP_NAME = TMP_DIR.name
 CHANGES_DIR = f"{TMP_NAME}/changes/"
+START_COMMIT = "c2e69fd322e3465b3c234949336288f8a0ee2ec7"
 
 
 class Command(BaseCommand):
@@ -75,8 +76,8 @@ def _get_most_recent_commit() -> str:
     commits = ChangelogItem.objects.order_by("-committed_at")
     if commits:
         print("Using start commit from the db.")
-        return commits[0].commit_hash
-    start_commit = "c2e69fd322e3465b3c234949336288f8a0ee2ec7"
+        return commits.first().commit_hash
+    start_commit = START_COMMIT
     print(f"Using fixed start commit: {start_commit}")
     return start_commit
 
@@ -89,32 +90,31 @@ def extend_changelog_table():
     # Load all commits and loop through them to extract info
     commits = _load_changelog_commits()
 
-    # TODO: maybe there is a way to exit the command on this condition,
-    # instead of this if/else structure?
+    # We need a base commit and an update commit to compare against the base commit
     if len(commits) < 2:
         print("No new commits to extract updates from. Exiting command now.")
+        return
 
-    else:
-        print(f"Fetched {len(commits)} new commits.")
+    print(f"Fetched {len(commits)} new commits.")
 
-        base_commit = ""
-        for update_commit in commits:
-            if base_commit:
-                print("****************************")
-                print(f"Base commit: {base_commit}")
-                print(f"Compare commit: {update_commit}")
-                print()
+    base_commit = ""
+    for update_commit in commits:
+        if base_commit:
+            print("****************************")
+            print(f"Base commit: {base_commit}")
+            print(f"Compare commit: {update_commit}")
+            print()
 
-                # Extract changelog updates from update commit
-                process_commit(base_commit, update_commit)
+            # Extract changelog updates from update commit
+            process_commit(base_commit, update_commit)
 
-                # Remove base commit dir (we'll keep the update dir for the next commit)
-                dir_path = os.path.join(os.getcwd(), CHANGES_DIR)
-                full_commit_dir = os.path.join(dir_path, base_commit)
-                shutil.rmtree(full_commit_dir)
+            # Remove base commit dir (we'll keep the update dir for the next commit)
+            dir_path = os.path.join(os.getcwd(), CHANGES_DIR)
+            full_commit_dir = os.path.join(dir_path, base_commit)
+            shutil.rmtree(full_commit_dir)
 
-            # Update commit will be base for next commit
-            base_commit = update_commit
+        # Update commit will be base for next commit
+        base_commit = update_commit
 
     # Clean up tmp folder
     TMP_DIR.cleanup()
@@ -137,13 +137,13 @@ def process_commit(base_commit, update_commit):
     if base_commit not in os.listdir(dir_path):
         args = [str(base_commit), TMP_NAME]
         subprocess.run(  # noqa: S603
-            ["bash", "schema_api/scripts/checkout_base_commit.sh", *args], check=True
+            ["bash", "schema_api/scripts/checkout_commit.sh", *args], check=True
         )
 
     # Update commit will always be new
     args = [str(update_commit), TMP_NAME]
     output = subprocess.run(  # noqa: S603
-        ["bash", "schema_api/scripts/checkout_update_commit.sh", *args],
+        ["bash", "schema_api/scripts/checkout_commit.sh", *args],
         check=True,
         capture_output=True,
         text=True,
@@ -244,13 +244,13 @@ def extract_diffs_for_dataset(diffs: dict[str:list], update_ds: DatasetSchema) -
             # E.g. old_v = 1.0.0 and new_v = 1.1.0
             if new_v.major == old_v.major and new_v.minor > old_v.minor:
                 change_dict = _extract_table_info(field_list, update_ds)
-                change_dict["label"] = "update"
+                change_dict["operation"] = "update"
                 db_updates.append(change_dict)
 
         # *** UPDATE STATUS ***
         if field_list[-1] == "status":
             change_dict = _extract_dataset_info(field_list, update_ds)
-            change_dict["label"] = "status"
+            change_dict["operation"] = "status"
             db_updates.append(change_dict)
 
     # Extract updates for added tables and added dataset versions
@@ -262,13 +262,13 @@ def extract_diffs_for_dataset(diffs: dict[str:list], update_ds: DatasetSchema) -
         # *** CREATE TABLE ***
         if field_list[-2] == "tables":
             change_dict = _extract_table_info(field_list, update_ds)
-            change_dict["label"] = "create"
+            change_dict["operation"] = "create"
             db_updates.append(change_dict)
 
         # *** CREATE DATASET VERSION ***
         if field_list[-2] == "versions":
             change_dict = _extract_dataset_info(field_list, update_ds)
-            change_dict["label"] = "create"
+            change_dict["operation"] = "create"
             db_updates.append(change_dict)
 
     return db_updates

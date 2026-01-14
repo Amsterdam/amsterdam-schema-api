@@ -22,14 +22,21 @@ class Migration(migrations.Migration):
                 ("dataset_id", models.CharField()),
                 ("status", models.CharField()),
                 ("object_id", models.CharField()),
-                ("label", models.CharField()),
+                ("operation", models.CharField()),
                 ("commit_hash", models.CharField()),
                 ("committed_at", models.DateTimeField()),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
             options={
                 "unique_together": {
-                    ("dataset_id", "status", "object_id", "label", "commit_hash", "committed_at")
+                    (
+                        "dataset_id",
+                        "status",
+                        "object_id",
+                        "operation",
+                        "commit_hash",
+                        "committed_at",
+                    )
                 },
             },
         ),

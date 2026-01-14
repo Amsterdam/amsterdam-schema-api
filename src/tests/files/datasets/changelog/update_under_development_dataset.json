@@ -40,7 +40,7 @@
                     "id": "groeiplaatsmedebeheer",
                     "type": "table",
                     "version": "1.0.0",
-                    "sStatus": "stable",
+                    "status": "stable",
                     "title": "Groeiplaats medebeheer van bomen",
                     "description": "",
                     "auth": "FP/MDW",
