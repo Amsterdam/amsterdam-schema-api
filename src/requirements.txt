@@ -4,9 +4,9 @@
 #
 #    pip-compile --generate-hashes --output-file=requirements.txt requirements.in
 #
-amsterdam-schema-tools[django]==9.1.2 \
-    --hash=sha256:23c22e158f6384bdc31bff95ff4cee9727af42612966104d847a5ed959c1ad33 \
-    --hash=sha256:c1a8cc485f4b353c7044d0bbad95e5d14d76a12ef9b094f2c5c0d2d4cb69b61c
+amsterdam-schema-tools[django]==9.1.6 \
+    --hash=sha256:87d63c5ae1f0601bcd8e3c81a2bd05e372c52c533c69f3485d595750b144897b \
+    --hash=sha256:91edd33744e66624a0ffcea5c4590b32134ecfc2c287e5ee9abf030f30ba787d
     # via -r requirements.in
 argparse==1.4.0 \
     --hash=sha256:62b089a55be1d8949cd2bc7e0df0bddb9e028faefc8c32038cc84862aefdd6e4 \
@@ -50,9 +50,9 @@ azure-identity==1.25.1 \
     # via
     #   -r requirements.in
     #   azure-monitor-opentelemetry-exporter
-azure-monitor-opentelemetry==1.8.3 \
-    --hash=sha256:4aa10f6712db653f618e14e3701de7a2f96669a8f2fea6fb22125077da4ea91c \
-    --hash=sha256:647248328bb03f8044918411d57c661230277958559f067892bd79f98ce8f69c
+azure-monitor-opentelemetry==1.8.4 \
+    --hash=sha256:74c75baf34f53dc6cea492c68c1bf7fa6e6876991ebe738c5d4c42dc7aee3f80 \
+    --hash=sha256:b388b14c82b2baa7718dfa1dabed1b1cc586e2a1e28c8cd1347d06dc84813511
     # via -r requirements.in
 azure-monitor-opentelemetry-exporter==1.0.0b46 \
     --hash=sha256:12935e72dcad4a162636eaa5f861e106fcdc3c19928e79cd58b52653fe15625a \
