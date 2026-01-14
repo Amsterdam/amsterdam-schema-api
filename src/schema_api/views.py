@@ -163,21 +163,27 @@ class ChangelogViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return ChangelogItem.objects.all().order_by("-committed_at")
 
-    @schema.list_changelog_schema
-    def list(self, request):
-        queryset = self.get_queryset()
+    def filter_on_query_params(self, request, queryset):
 
-        # From_date filtering
+        # For now there's only from_date, more can be added here
         date_param = request.query_params.getlist("from_date")
         if date_param:
-            queryset = queryset.filter(committed_at__gte=date_param[0])
+            return queryset.filter(committed_at__gte=date_param[0])
+        return queryset
 
+    def return_paginated_list_response(self, queryset):
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    @schema.list_changelog_schema
+    def list(self, request):
+        queryset = self.get_queryset()
+        queryset = self.filter_on_query_params(request, queryset)
+        return self.return_paginated_list_response(queryset)
 
     @schema.retrieve_changelog_schema
     def retrieve(self, request, pk):
@@ -190,15 +196,5 @@ class ChangelogViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, url_path=r"(?P<dataset>[A-Za-z_]+)")
     def dataset(self, request, dataset):
         queryset = self.get_queryset().filter(dataset_id=dataset)
-
-        # From_date filtering
-        date_param = request.query_params.getlist("from_date")
-        if date_param:
-            queryset = queryset.filter(committed_at__gte=date_param[0])
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        queryset = self.filter_on_query_params(request, queryset)
+        return self.return_paginated_list_response(queryset)
