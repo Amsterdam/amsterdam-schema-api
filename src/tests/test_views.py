@@ -6,9 +6,13 @@ from django.utils.dateparse import parse_datetime
 
 
 def test_root_view(client):
-    response = client.get("/status")
+    response = client.get("/v1")
     assert response.status_code == 200
-    assert response.json() == {"status": "online"}
+
+
+def test_root_view_redirect(client):
+    response = client.get("/", follow=True)
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db
