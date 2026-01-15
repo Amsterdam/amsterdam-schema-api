@@ -59,24 +59,24 @@ The following URLs are available:
 
 | API                                      | Description                              |
 |------------------------------------------|------------------------------------------|
-| `/datasets/` | All available datasets (without inlined tables)                          |
-| `/datasets/<dataset_id>/` | Dataset with inlined tables             |
-| `/datasets/<dataset_id>/?scopes=[scope_list]/` | Dataset with inlined tables, filtered on scope       |
-| `/datasets/<dataset_id>/<vmajor>/` | Specific major version of dataset with inlined tables     |
-| `/datasets/<dataset_id>/<vmajor>/?scopes=[scope_list]/` | Specific major version of dataset with inlined tables, filtered on scope  |
-| `/datasets/<dataset_id>/<vmajor><table_id>/` | Table of specific major version of dataset |
-| `/datasets/<dataset_id>/<vmajor><table_id>/?scopes=[scope_list]/`| Table of specific major version of dataset, filtered on scope |
-| `/scopes/` | All available scopes |
-| `/scopes/<scope_id>/` | Scope details |
-| `/publishers/` |  All available publishers |
-| `/publishers/<publisher_id>/` | Publisher details |
-| `/profiles/` | All available profiles |
-| `/profiles/<profiles_id>/` | Profile details |
-| `/changelog/` | All changelog items |
-| `/changelog/?from_date='YYYY-MM-DD'/` | Changelog items newer than provided from_date |
-| `/changelog/<dataset_id>/` | Changelog items for a specific dataset |
-| `/changelog/<dataset_id>?from_date='YYYY-MM-DD'/` | Changelog items for a specific dataset, newer than provided from_date |
-| `/changelog/<changelog_id>/` | Changelog item details |
+| `/datasets` | All available datasets (without inlined tables)                          |
+| `/datasets/<dataset_id>` | Dataset with inlined tables             |
+| `/datasets/<dataset_id>/?scopes=[scope_list]` | Dataset with inlined tables, filtered on scope       |
+| `/datasets/<dataset_id>/<vmajor>` | Specific major version of dataset with inlined tables     |
+| `/datasets/<dataset_id>/<vmajor>/?scopes=[scope_list]` | Specific major version of dataset with inlined tables, filtered on scope  |
+| `/datasets/<dataset_id>/<vmajor><table_id>` | Table of specific major version of dataset |
+| `/datasets/<dataset_id>/<vmajor><table_id>/?scopes=[scope_list]`| Table of specific major version of dataset, filtered on scope |
+| `/scopes` | All available scopes |
+| `/scopes/<scope_id>` | Scope details |
+| `/publishers` |  All available publishers |
+| `/publishers/<publisher_id>` | Publisher details |
+| `/profiles` | All available profiles |
+| `/profiles/<profiles_id>` | Profile details |
+| `/changelog` | All changelog items |
+| `/changelog/?from_date='YYYY-MM-DD'` | Changelog items newer than provided from_date |
+| `/changelog/<dataset_id>` | Changelog items for a specific dataset |
+| `/changelog/<dataset_id>?from_date='YYYY-MM-DD'` | Changelog items for a specific dataset, newer than provided from_date |
+| `/changelog/<changelog_id>` | Changelog item details |
 
 ## Environment Settings
 

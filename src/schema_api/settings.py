@@ -378,3 +378,4 @@ AMSTERDAM_SCHEMA = {"geosearch_disabled_datasets": []}  # Required setting for i
 SCHEMA_URL = env.str("SCHEMA_URL", "https://schemas.data.amsterdam.nl/datasets/")
 SCHEMA_DEFS_URL = env.str("SCHEMA_DEFS_URL", "https://schemas.data.amsterdam.nl/schema")
 PROFILES_URL = env.str("PROFILES_URL", "https://schemas.data.amsterdam.nl/profiles/")
+APPEND_SLASH = False
