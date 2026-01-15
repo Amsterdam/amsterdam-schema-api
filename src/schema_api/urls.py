@@ -11,7 +11,7 @@ from rest_framework.routers import DefaultRouter
 
 from . import views
 
-router = DefaultRouter()
+router = DefaultRouter(trailing_slash=False)
 router.register(r"datasets", views.DatasetViewSet, basename="dataset")
 router.register(r"scopes", views.ScopeViewSet, basename="scope")
 router.register(r"publishers", views.PublisherViewSet, basename="publisher")
@@ -19,11 +19,11 @@ router.register(r"profiles", views.ProfileViewSet, basename="profile")
 router.register(r"changelog", views.ChangelogViewSet, basename="changelog")
 
 urlpatterns = [
-    path("status/", views.RootView.as_view()),
+    path("status", views.RootView.as_view()),
     path("v1/", include(router.urls)),
     path("", RedirectView.as_view(url="v1/", permanent=True)),
     path(
-        "v1/schema/",
+        "v1/schema",
         SpectacularSwaggerView.as_view(url_name="schema-json"),
         name="swagger-ui",
     ),
