@@ -34,7 +34,7 @@ class TestDatasetViews:
             reverse(
                 "dataset-detail",
                 kwargs={"name": "gebieden"},
-                query={"tables": ["bouwblokken", "buurten", "wijken"]},
+                query={"tables": "bouwblokken,buurten,wijken"},
             ),
         )
         assert response.status_code == 200
@@ -46,7 +46,7 @@ class TestDatasetViews:
             reverse(
                 "dataset-detail",
                 kwargs={"name": "gebieden"},
-                query={"tables": ["bouwblokken", "buurten", "wijken", "huisnummerplaten"]},
+                query={"tables": "bouwblokken,buurten,wijken,huisnummerplaten"},
             ),
         )
         assert response.status_code == 200
@@ -65,7 +65,7 @@ class TestDatasetViews:
             reverse(
                 "dataset-version",
                 kwargs={"name": "gebieden", "vmajor": "v1"},
-                query={"tables": ["bouwblokken", "buurten", "wijken"]},
+                query={"tables": "bouwblokken,buurten,wijken"},
             ),
         )
         assert response.status_code == 200
@@ -140,12 +140,13 @@ class TestDatasetViews:
                     "name": "bomen",
                 },
                 query={
-                    "scopes": ["openbaar", "fp_mdw"],
+                    "scopes": "openbaar,fp_mdw",
                 },
             ),
         )
         assert response.status_code == 200
-        assert response.data["versions"]["v1"]["tables"][0]["schema"]["properties"]
+        fields = set(response.data["versions"]["v1"]["tables"][0]["schema"]["properties"].keys())
+        assert fields == {"schema", "id", "groeiplaatsBoom", "guid", "begindatum"}
 
     def test_dataset_scope_version_access(self, client, bomen_dataset, scope_fixture):
         response = client.get(

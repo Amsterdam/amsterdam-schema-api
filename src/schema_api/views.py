@@ -49,16 +49,16 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         dataset_schema = dataset.schema
 
         # Table filtering
-        tables_param = request.query_params.getlist("tables")
+        tables_param = request.query_params.get("tables")
         if tables_param:
-            dataset_schema = DatasetSchema.filter_on_tables(dataset_schema, tables_param)
+            tables = tables_param.split(",")
+            dataset_schema = DatasetSchema.filter_on_tables(dataset_schema, tables)
 
         # Scope filtering
-        scopes_param = request.query_params.getlist("scopes")
+        scopes_param = request.query_params.get("scopes")
         if scopes_param:
-
             # Transform url safe scope ids to regular ids
-            scopes = [scope.replace("_", "/").upper() for scope in scopes_param]
+            scopes = [scope.replace("_", "/").upper() for scope in scopes_param.split(",")]
             dataset_schema = DatasetSchema.filter_on_scopes(dataset_schema, scopes)
 
         return Response(dataset_schema)
@@ -71,16 +71,17 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         dataset_schema = dataset.schema
 
         # Table filtering
-        tables_param = request.query_params.getlist("tables")
+        tables_param = request.query_params.get("tables")
         if tables_param:
-            dataset_schema = DatasetSchema.filter_on_tables(dataset_schema, tables_param)
+            tables = tables_param.split(",")
+            dataset_schema = DatasetSchema.filter_on_tables(dataset_schema, tables)
 
         # Scope filtering
-        scopes_param = request.query_params.getlist("scopes")
+        scopes_param = request.query_params.get("scopes")
         if scopes_param:
 
             # Transform url safe scope ids to regular ids
-            scopes = [scope.replace("_", "/").upper() for scope in scopes_param]
+            scopes = [scope.replace("_", "/").upper() for scope in scopes_param.split(",")]
             dataset_schema = DatasetSchema.filter_on_scopes(dataset_schema, scopes)
 
         try:
@@ -98,11 +99,11 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         dataset_schema = dataset.schema
 
         # Scope filtering
-        scopes_param = request.query_params.getlist("scopes")
+        scopes_param = request.query_params.get("scopes")
         if scopes_param:
 
             # Transform url safe scope ids to regular ids
-            scopes = [scope.replace("_", "/").upper() for scope in scopes_param]
+            scopes = [scope.replace("_", "/").upper() for scope in scopes_param.split(",")]
             dataset_schema = DatasetSchema.filter_on_scopes(dataset_schema, scopes)
 
         try:
