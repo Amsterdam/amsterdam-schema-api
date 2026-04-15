@@ -29,6 +29,14 @@ class TestDatasetViews:
         assert response.status_code == 200
         assert response.data["id"] == "bomen"
 
+    def test_dataset_detail_snake_case(self, client, milieu2025_dataset):
+        """Ensure CamelCase dataset id is found (dataset id is snake_case in db)"""
+        response = client.get(
+            reverse("dataset-detail", kwargs={"name": "milieuzones2025"}),
+        )
+        assert response.status_code == 200
+        assert response.data["id"] == "milieuzones2025"
+
     def test_dataset_detail_filter_on_tables(self, client, gebieden_dataset):
         response = client.get(
             reverse(

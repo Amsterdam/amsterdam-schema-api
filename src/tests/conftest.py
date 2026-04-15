@@ -74,6 +74,13 @@ def gebieden_dataset(here):
 
 
 @pytest.fixture()
+def milieu2025_dataset(here):
+    dataset_path = here / "files/datasets/milieu2025.json"
+    args = [dataset_path]
+    call_command("import_schemas", *args, dry_run=False)
+
+
+@pytest.fixture()
 def scope_fixture(here):
     scope_fp_mdw = here / "files/scopes/fp_mdw.json"
     scope_openbaar = here / "files/scopes/openbaar.json"

@@ -1,0 +1,177 @@
+{
+    "type": "dataset",
+    "id": "milieuzones2025",
+    "title": "milieuzones",
+    "description": "Milieuzones die gelden voor verkeer in Amsterdam vanaf 2025",
+    "owner": "Gemeente Amsterdam",
+    "publisher": {
+        "name": "Datateam Mobiliteit",
+        "id": "MOBI",
+        "shortname": "mobili",
+        "tags": {
+            "team": "mobi",
+            "costcenter": "76100005.45219"
+        },
+        "type": "publisher"
+    },
+    "crs": "EPSG:28992",
+    "creator": "Team Uitstootvrije Mobiliteit",
+    "auth": [
+        {
+            "type": "scope",
+            "id": "OPENBAAR",
+            "name": "Openbaar",
+            "accessPackages": {
+                "nonProduction": "EM4W-DATA-schemascope-ot-scope_openbaar",
+                "production": "EM4W-DATA-schemascope-p-scope_openbaar"
+            },
+            "owner": {
+                "$ref": "publishers/DADI"
+            }
+        }
+    ],
+    "authorizationGrantor": "teammobiliteit.data@amsterdam.nl",
+    "defaultVersion": "v1",
+    "versions": {
+        "v1": {
+            "status": "stable",
+            "enableAPI": true,
+            "enableGeosearch": true,
+            "version": "1.1.2",
+            "tables": [
+                {
+                    "id": "vrachtEnBestelauto",
+                    "title": "Gebied met milieuzone vracht- en bestelauto's vanaf 01/01/2025",
+                    "type": "table",
+                    "version": "1.1.2",
+                    "status": "stable",
+                    "schema": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "identifier": "id",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "schema"
+                        ],
+                        "display": "id",
+                        "properties": {
+                            "schema": {
+                                "$ref": "https://schemas.data.amsterdam.nl/schema@v4.0.0#/definitions/schema"
+                            },
+                            "id": {
+                                "type": "integer",
+                                "title": "Vracht en bestelauto milieuzone ID",
+                                "description": "Unieke aanduiding van het milieuzone gebied."
+                            },
+                            "geometry": {
+                                "title": "Vracht en bestelauto milieuzone geometrie",
+                                "$ref": "https://geojson.org/schema/MultiPolygon.json",
+                                "description": "Aanduiding voor de geometrie van het beheerobject volgens het Stelsel van de Rijksdriehoeksmeting (RD, epsg:28992)."
+                            }
+                        }
+                    }
+                },
+                {
+                    "id": "personenauto",
+                    "title": "Gebied met milieuzone personenauto's vanaf 01/01/2025",
+                    "type": "table",
+                    "version": "1.1.2",
+                    "status": "stable",
+                    "schema": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "identifier": "id",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "schema"
+                        ],
+                        "display": "id",
+                        "properties": {
+                            "schema": {
+                                "$ref": "https://schemas.data.amsterdam.nl/schema@v4.0.0#/definitions/schema"
+                            },
+                            "id": {
+                                "type": "integer",
+                                "title": "Personenauto milieuzone ID",
+                                "description": "Unieke aanduiding van het milieuzone gebied voor personenauto's."
+                            },
+                            "geometry": {
+                                "title": "Personenauto milieuzone geometrie",
+                                "$ref": "https://geojson.org/schema/MultiPolygon.json",
+                                "description": "Aanduiding voor de geometrie van het beheerobject volgens het Stelsel van de Rijksdriehoeksmeting (RD, epsg:28992)."
+                            }
+                        }
+                    }
+                },
+                {
+                    "id": "touringcar",
+                    "title": "Gebied met milieuzone touringcars vanaf 01/01/2025",
+                    "type": "table",
+                    "version": "1.1.2",
+                    "status": "stable",
+                    "schema": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "identifier": "id",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "schema"
+                        ],
+                        "display": "id",
+                        "properties": {
+                            "schema": {
+                                "$ref": "https://schemas.data.amsterdam.nl/schema@v4.0.0#/definitions/schema"
+                            },
+                            "id": {
+                                "type": "integer",
+                                "title": "Touringcar milieuzone ID",
+                                "description": "Unieke aanduiding van het milieuzone gebied voor touringcars."
+                            },
+                            "geometry": {
+                                "title": "Touringcar milieuzone geometrie",
+                                "$ref": "https://geojson.org/schema/MultiPolygon.json",
+                                "description": "Aanduiding voor de geometrie van het beheerobject volgens het Stelsel van de Rijksdriehoeksmeting (RD, epsg:28992)."
+                            }
+                        }
+                    }
+                },
+                {
+                    "id": "taxi",
+                    "title": "Gebied met milieuzone taxi's vanaf 01/01/2025",
+                    "type": "table",
+                    "version": "1.1.2",
+                    "status": "stable",
+                    "schema": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "identifier": "id",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "schema"
+                        ],
+                        "display": "id",
+                        "properties": {
+                            "schema": {
+                                "$ref": "https://schemas.data.amsterdam.nl/schema@v4.0.0#/definitions/schema"
+                            },
+                            "id": {
+                                "type": "integer",
+                                "title": "Taxi milieuzone ID",
+                                "description": "Unieke aanduiding van het milieuzone gebied voor taxi's."
+                            },
+                            "geometry": {
+                                "title": "Taxi milieuzone geometrie",
+                                "$ref": "https://geojson.org/schema/MultiPolygon.json",
+                                "description": "Aanduiding voor de geometrie van het beheerobject volgens het Stelsel van de Rijksdriehoeksmeting (RD, epsg:28992)."
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
