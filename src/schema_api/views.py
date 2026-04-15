@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from schematools.contrib.django.models import Dataset, Profile, Publisher, Scope
 from schematools.exceptions import DatasetTableNotFound, DatasetVersionNotFound
+from schematools.naming import to_snake_case
 from schematools.types import DatasetSchema
 
 import schema_api.openapi.schema as schema
@@ -45,7 +46,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
     @schema.retrieve_datasets_schema
     def retrieve(self, request, name):
         datasets = self.get_queryset()
-        dataset = get_object_or_404(datasets, name=name)
+        dataset = get_object_or_404(datasets, name=to_snake_case(name))
         dataset_schema = dataset.schema
 
         # Table filtering
@@ -67,7 +68,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=True, url_path=r"(?P<vmajor>v\d{1,3})")
     def version(self, request, name, vmajor):
         datasets = self.get_queryset()
-        dataset = get_object_or_404(datasets, name=name)
+        dataset = get_object_or_404(datasets, name=to_snake_case(name))
         dataset_schema = dataset.schema
 
         # Table filtering
@@ -95,7 +96,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=True, url_path=r"(?P<vmajor>v\d{1,3})/(?P<table_id>\w+)")
     def table(self, request, name, vmajor, table_id):
         datasets = self.get_queryset()
-        dataset = get_object_or_404(datasets, name=name)
+        dataset = get_object_or_404(datasets, name=to_snake_case(name))
         dataset_schema = dataset.schema
 
         # Scope filtering
