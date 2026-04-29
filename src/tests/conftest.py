@@ -63,21 +63,21 @@ def common_headers(request) -> dict:
 def bomen_dataset(here):
     dataset_path = here / "files/datasets/bomen.json"
     args = [dataset_path]
-    call_command("import_schemas", *args, dry_run=False)
+    call_command("import_schemas", *args)
 
 
 @pytest.fixture()
 def gebieden_dataset(here):
     dataset_path = here / "files/datasets/gebieden.json"
     args = [dataset_path]
-    call_command("import_schemas", *args, dry_run=False)
+    call_command("import_schemas", *args)
 
 
 @pytest.fixture()
 def milieu2025_dataset(here):
     dataset_path = here / "files/datasets/milieu2025.json"
     args = [dataset_path]
-    call_command("import_schemas", *args, dry_run=False)
+    call_command("import_schemas", *args)
 
 
 @pytest.fixture()

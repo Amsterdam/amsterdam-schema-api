@@ -6,7 +6,7 @@ then
     echo "--- Run migrate";
     ./manage.py migrate;
     echo "--- Import schemas";
-    ./manage.py import_schemas --execute --no-migrate-tables;
+    ./manage.py import_schemas --no-migrate-tables;
     echo "--- Import scopes";
     python manage.py import_scopes;
     echo "--- Import publishers";
