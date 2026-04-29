@@ -12,6 +12,7 @@ Requirements:
 ### Using Docker Compose
 
 Run docker compose:
+
 ```shell
 docker compose up
 ```
@@ -28,6 +29,7 @@ source .venv/bin/activate
 ```
 
 Install all packages in it:
+
 ```shell
 pip install -U wheel pip
 pip install setuptools
@@ -39,13 +41,14 @@ Execute the following commands to migrate and fill the database:
 
 ```shell
 python manage.py migrate
-python manage.py import_schemas --execute --no-migrate-tables
+python manage.py import_schemas --no-migrate-tables
 python manage.py import_scopes
 python manage.py import_publishers
 python manage.py import_profiles
 ```
 
 Set the required environment variables and start the Django application:
+
 ```shell
 export PUB_JWKS="$(cat jwks_test.json)"
 export DJANGO_DEBUG=true
