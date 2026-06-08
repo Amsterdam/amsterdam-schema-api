@@ -167,6 +167,14 @@ def patch_table(here):
 
 
 @pytest.fixture()
+def patch_dataset(here):
+    path = here / "files/datasets/changelog/patch_dataset.json"
+    return FileSystemSchemaLoader(schema_url="").get_dataset_from_file(
+        path, allow_external_files=True
+    )
+
+
+@pytest.fixture()
 def changelog_items(here):
     changelog_items = [
         {

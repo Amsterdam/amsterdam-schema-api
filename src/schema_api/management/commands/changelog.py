@@ -259,17 +259,21 @@ def extract_diffs_for_dataset(diffs: dict[str:list], update_ds: DatasetSchema) -
         change_dict = {}
         field_list = _parse_deepdiff_field(field)
 
-        # *** CREATE TABLE ***
-        if field_list[-2] == "tables":
-            change_dict = _extract_table_info(field_list, update_ds)
-            change_dict["operation"] = "create"
-            db_updates.append(change_dict)
+        # Add this try catch to prevent IndexError when a field is added on dataset level
+        try:
+            # *** CREATE TABLE ***
+            if field_list[-2] == "tables":
+                change_dict = _extract_table_info(field_list, update_ds)
+                change_dict["operation"] = "create"
+                db_updates.append(change_dict)
 
-        # *** CREATE DATASET VERSION ***
-        if field_list[-2] == "versions":
-            change_dict = _extract_dataset_info(field_list, update_ds)
-            change_dict["operation"] = "create"
-            db_updates.append(change_dict)
+            # *** CREATE DATASET VERSION ***
+            if field_list[-2] == "versions":
+                change_dict = _extract_dataset_info(field_list, update_ds)
+                change_dict["operation"] = "create"
+                db_updates.append(change_dict)
+        except IndexError:
+            continue
 
     return db_updates
 
