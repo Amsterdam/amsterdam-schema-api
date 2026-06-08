@@ -221,3 +221,18 @@ class TestChangelogCommand:
         db_updates = extract_diffs_for_dataset(diffs, patch_table)
 
         assert db_updates == []
+
+    def test_changelog_patch_dataset_property(
+        self,
+        base_dataset: DatasetSchema,
+        patch_dataset: DatasetSchema,
+    ):
+        """
+        Tests to make sure a field addition to a dataset does not result in an error.
+        """
+
+        # Mimic functionality of changelog command
+        diffs = base_dataset.get_diffs(patch_dataset)
+        db_updates = extract_diffs_for_dataset(diffs, patch_dataset)
+
+        assert db_updates == []
