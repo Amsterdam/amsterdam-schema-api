@@ -16,6 +16,13 @@ install:                               ## Perform all install steps
 	uv sync
 	uv run pre-commit install
 
+##
+## Package management:
+##
+
+.PHONY: upgrade
+upgrade:                               ## Upgrade the dependencies.
+	uv sync --upgrade
 
 ##
 ## Testing:
