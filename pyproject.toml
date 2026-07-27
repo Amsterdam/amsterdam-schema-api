@@ -4,11 +4,9 @@ version = "0.1.0"
 description = "A Django REST API to expose the Amsterdam Schema."
 readme = "README.md"
 requires-python = ">=3.12"
-license = "MPL-2.0"
-authors = [
-    { name = "Team Data Diensten, van het Dataplatform onder de Directie Digitale Voorzieningen (Gemeente Amsterdam)", email = "datapunt@amsterdam.nl" },
-]
-keywords = ["jsonschema", "schema", "json", "amsterdam", "code-generation"]
+license = "EUPL-1.2"
+author = "Team Data Diensten, van het Dataplatform onder de Directie Digitale Voorzieningen (Gemeente Amsterdam)"
+author_email = "datapunt@amsterdam.nl"
 
 dependencies = [
     "django >= 5.2.15, < 6.0",
@@ -27,6 +25,13 @@ dependencies = [
     "jwcrypto==1.5.8",
 ]
 
+monitoring = [
+    "azure-monitor-opentelemetry == 1.8.6",
+    "azure-identity == 1.25.3",
+    "uwsgitop == 0.12",
+    "uwsgi-readiness-check == 0.2.0",
+]
+
 [dependency-groups]
 dev = [
     "pytest==9.1.1",
@@ -43,14 +48,6 @@ dev = [
     "termcolor==3.3.0",
     "django-debug-toolbar==7.0.0",
     "django-extensions==4.1",
-]
-
-[project.optional-dependencies]
-monitoring = [
-    "azure-monitor-opentelemetry == 1.8.6",
-    "azure-identity == 1.25.3",
-    "uwsgitop == 0.12",
-    "uwsgi-readiness-check == 0.2.0",
 ]
 
 [project.urls]
