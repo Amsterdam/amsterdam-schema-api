@@ -1,16 +1,81 @@
+[project]
+name = "schema-api"
+version = "0.1.0"
+description = "A Django REST API to expose the Amsterdam Schema."
+readme = "README.md"
+requires-python = ">=3.14"
+license = "EUPL-1.2"
+author = "Team Data Diensten, van het Dataplatform onder de Directie Digitale Voorzieningen (Gemeente Amsterdam)"
+author_email = "datapunt@amsterdam.nl"
+
+dependencies = [
+    "django >= 5.2.15, < 6.0",
+    "django-environ==0.14.0",
+    "django-cors-headers==4.9.0",
+    "django-healthchecks==1.5.0",
+    "djangorestframework==3.17.1",
+    "drf_spectacular==0.29.0",
+    "amsterdam-schema-tools[django]==9.11.0",
+    "python-json-logger==4.1.0",
+    "requests==2.34.2",
+    "uwsgi>=2.0.31",
+    "more-ds==0.0.6",
+    "orjson==3.11.9",
+    "whitenoise==6.12.0",
+    "jwcrypto==1.5.8",
+]
+
+monitoring = [
+    "azure-monitor-opentelemetry == 1.8.6",
+    "azure-identity == 1.25.3",
+    "uwsgitop == 0.12",
+    "uwsgi-readiness-check == 0.2.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "pytest-django==4.12.0",
+    "python-owasp-zap-v2.4==0.1.0",
+    "requests-mock==1.12.1",
+    "pur==7.4.0",
+    "setuptools==83.0.0",
+    "pre-commit==4.6.0",
+    "ruff==0.15.20",
+    "django-extensions==4.1",
+    "pytest-sugar==1.1.1",
+    "termcolor==3.3.0",
+    "django-debug-toolbar==7.0.0",
+    "django-extensions==4.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/Amsterdam/amsterdam-schema-api"
+Repository = "https://github.com/Amsterdam/amsterdam-schema-api"
+
+[build-system]
+requires = ["uv_build>=0.11.21,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "schema_api"
+module-root = "src"
+
 # ==== pytest ====
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "tests.settings"
 minversion = "6.0"
 django_find_project = false
-pythonpath = "src/"
+pythonpath = "."
 testpaths = ["tests"]
 addopts = [
+    "--doctest-modules",
     "--nomigrations",
     "--reuse-db",
     "--ds=tests.settings"
 ]
-norecursedirs = ["node_modules", ".tox", ".git"]
+norecursedirs = ["node_modules", ".tox", ".git", "dist", "build", "venv", ".venv"]
 filterwarnings = [
     "once::DeprecationWarning",
     "once::PendingDeprecationWarning",
@@ -23,12 +88,6 @@ branch = true
 source = ["gisserver"]
 omit = ["*/migrations/*.py", "*/test*.py", "*/tests/*"]
 plugins = ["django_coverage_plugin"]
-
-
-# ==== black ====
-[tool.black]
-line-length = 99
-target-version = ['py38']
 
 # ==== ruff ====
 [tool.ruff]
@@ -97,7 +156,7 @@ known-third-party = ["gisserver", "schematools"]
 max-complexity = 10
 
 [tool.ruff.lint.per-file-ignores]
+"src/tests/**/*.py" = ["DJ008", "S101", "S105", "S106", "S314", "S320", "S608"] # allow asserts, hardcoded passwords, lxml parsing, SQL injection
 "**/migrations/*.py" = ["E501"]  # line too long
 "docs/_ext/djangodummy/settings.py" = ["S105"]  # allow hardcoded SECRET_KEY
 "src/tests/settings.py" = ["F405"]  # allow unknown variables via import from *
-"src/tests/**/*.py" = ["DJ008", "S101", "S105", "S106", "S314", "S320", "S608"]  # allow asserts, hardcoded passwords, lxml parsing, SQL injection

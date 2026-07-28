@@ -19,9 +19,7 @@ services:
     command: [ "postgres", "-c", "log_statement=all" ]
   web:
     build:
-      context: src/
-      args:
-        PIP_REQUIREMENTS: requirements_dev.txt
+      context: .
     ports:
       - "8000:8000"
     links:
@@ -50,12 +48,13 @@ services:
       INITIALIZE_DB: "${INITIALIZE_DB:-true}"
       PGSSLMODE: "${PGSSLMODE:-allow}"
     volumes:
-      - ./src:/app
+      - ./src:/app/src
+      - ./src/schema_api:/app/schema_api:ro
       - "../amsterdam-schema/datasets:/tmp/datasets"
       - "../amsterdam-schema/publishers:/tmp/publishers"
       - "../amsterdam-schema/profiles:/tmp/profiles"
       - "../amsterdam-schema/scopes:/tmp/scopes"
       - "../schema-tools:/tmp/schema-tools"
     command: >
-      /bin/bash -c "sh /app/initialize_db.sh
+      /bin/bash -c "sh /app/src/initialize_db.sh
       && uwsgi --py-auto-reload=1 --enable-threads --lazy-apps --buffer-size=65535 --single-interpreter --need-app --memory-report"
