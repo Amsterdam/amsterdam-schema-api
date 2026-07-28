@@ -4,7 +4,7 @@ requires-python = ">=3.14"
 
 [[package]]
 name = "amsterdam-schema-tools"
-version = "9.11.0"
+version = "9.11.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -29,9 +29,9 @@ dependencies = [
     { name = "sqlalchemy" },
     { name = "sqlparse" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b7/01/3622e8ec7cdc363ee6cd49f5d5bb83f6ed7b146fd9612d1143b3a3bc0633/amsterdam_schema_tools-9.11.0.tar.gz", hash = "sha256:f714b7c825358bbea3af97d5dee92893e995d446ed1a5466c8ee430ecd04ed56", size = 140309, upload-time = "2026-07-06T13:41:57.685Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b8/78/e72c3ddfd6acdaac08e3a7b92d52188fb0590a72c7ef82a3cd39abaa2d48/amsterdam_schema_tools-9.11.1.tar.gz", hash = "sha256:8fc26915fa3c56950f7d1ab90e1dc64ec12e523f275607e4c4df0740bc7cd104", size = 140312, upload-time = "2026-07-28T12:23:14.549Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/95/3c/a76454b7789c05240d88a18a2e88dcdfb0b607d29c8b59cb3da34d5e3529/amsterdam_schema_tools-9.11.0-py3-none-any.whl", hash = "sha256:4ddfc37f0e9f59e7b09562657795e5ce24e1bb99552cc0939d56f7f28804267a", size = 189486, upload-time = "2026-07-06T13:41:56.21Z" },
+    { url = "https://files.pythonhosted.org/packages/11/31/15ae45d8deb077ee2e07f4c164eae74edc84af6cadbd8d902f8407f57f78/amsterdam_schema_tools-9.11.1-py3-none-any.whl", hash = "sha256:ca29294d98954fbafeb7aa6d30edb1794f132a7cc5e15b7bddcc7210e93ac98f", size = 189518, upload-time = "2026-07-28T12:23:13.359Z" },
 ]
 
 [package.optional-dependencies]
@@ -1378,7 +1378,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "amsterdam-schema-tools", extras = ["django"], specifier = "==9.11.0" },
+    { name = "amsterdam-schema-tools", extras = ["django"], specifier = "==9.11.1" },
     { name = "django", specifier = ">=5.2.15,<6.0" },
     { name = "django-cors-headers", specifier = "==4.9.0" },
     { name = "django-environ", specifier = "==0.14.0" },
