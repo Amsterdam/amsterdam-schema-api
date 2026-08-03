@@ -9,27 +9,24 @@ author = "Team Data Diensten, van het Dataplatform onder de Directie Digitale Vo
 author_email = "datapunt@amsterdam.nl"
 
 dependencies = [
+    "amsterdam-schema-tools[django]==9.11.1",
+    "azure-identity == 1.25.3",
+    "azure-monitor-opentelemetry == 1.8.6",
     "django >= 5.2.15, < 6.0",
-    "django-environ==0.14.0",
     "django-cors-headers==4.9.0",
+    "django-environ==0.14.0",
     "django-healthchecks==1.5.0",
     "djangorestframework==3.17.1",
     "drf_spectacular==0.29.0",
-    "amsterdam-schema-tools[django]==9.11.1",
-    "python-json-logger==4.1.0",
-    "requests==2.34.2",
-    "uwsgi>=2.0.31",
+    "jwcrypto==1.5.8",
     "more-ds==0.0.6",
     "orjson==3.11.9",
-    "whitenoise==6.12.0",
-    "jwcrypto==1.5.8",
-]
-
-monitoring = [
-    "azure-monitor-opentelemetry == 1.8.6",
-    "azure-identity == 1.25.3",
-    "uwsgitop == 0.12",
+    "python-json-logger==4.1.0",
+    "requests==2.34.2",
     "uwsgi-readiness-check == 0.2.0",
+    "uwsgi>=2.0.31",
+    "uwsgitop == 0.12",
+    "whitenoise==6.12.0",
 ]
 
 [dependency-groups]
