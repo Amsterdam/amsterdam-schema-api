@@ -64,7 +64,7 @@ module-root = "src"
 DJANGO_SETTINGS_MODULE = "tests.settings"
 minversion = "6.0"
 django_find_project = false
-pythonpath = "."
+pythonpath = "src/"
 testpaths = ["tests"]
 addopts = [
     "--doctest-modules",
