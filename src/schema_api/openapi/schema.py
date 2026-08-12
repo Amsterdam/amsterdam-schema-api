@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from drf_spectacular.openapi import AutoSchema as _AutoSchema
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, OpenApiResponse, extend_schema
@@ -36,7 +37,9 @@ class AutoSchema(_AutoSchema):
 
 
 # Dataset example is loaded as type Datasetschema to apply version and table filtering
-with open("schema_api/openapi/example_responses/dataset_example.json", encoding="utf-8") as file:
+EXAMPLE_RESPONSES_DIR = Path(__file__).resolve().parent / "example_responses"
+
+with open(EXAMPLE_RESPONSES_DIR / "dataset_example.json", encoding="utf-8") as file:
     dataset_example = json.load(file)
     DATASET_EXAMPLE_SCHEMA = DatasetSchema.from_dict(dataset_example)
 
@@ -128,7 +131,7 @@ retrieve_datasets_schema_v_t = extend_schema(
 )
 
 # Load example Scope json response
-with open("schema_api/openapi/example_responses/scope_example.json", encoding="utf-8") as file:
+with open(EXAMPLE_RESPONSES_DIR / "scope_example.json", encoding="utf-8") as file:
     scope_example = json.load(file)
 
 
@@ -161,7 +164,7 @@ retrieve_scope_schema = extend_schema(
 )
 
 # Load example Publisher json response
-with open("schema_api/openapi/example_responses/publisher_example.json", encoding="utf-8") as file:
+with open(EXAMPLE_RESPONSES_DIR / "publisher_example.json", encoding="utf-8") as file:
     publisher_example = json.load(file)
 
 list_publisher_schema = extend_schema(
@@ -194,7 +197,7 @@ retrieve_publisher_schema = extend_schema(
 )
 
 # Load example Profile json response
-with open("schema_api/openapi/example_responses/profile_example.json", encoding="utf-8") as file:
+with open(EXAMPLE_RESPONSES_DIR / "profile_example.json", encoding="utf-8") as file:
     profile_example = json.load(file)
 
 list_profile_schema = extend_schema(
