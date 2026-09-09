@@ -12,11 +12,19 @@ on:
       - main
 
 jobs:
-  docker:
+  tests:
     name: Run Pytest
     timeout-minutes: 10
     runs-on: ubuntu-latest
-
+    # Run tests against multiple PostgreSQL versions, while we migrate the db.
+    strategy:
+      fail-fast: false
+      matrix:
+        postgres-version:
+          - 14
+          - 17
+    env:
+      POSTGRES_VERSION: ${{ matrix.postgres-version }}
     steps:
     - name: Checkout
       uses: actions/checkout@v1
