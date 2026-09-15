@@ -48,7 +48,7 @@ class Command(BaseCommand):
             subprocess.run(  # noqa: S603
                 [
                     "bash",
-                    "schema_api/scripts/clone_ams_schema.sh",
+                    "src/schema_api/scripts/clone_ams_schema.sh",
                     start_commit,
                     end_commit,
                     TMP_NAME,
@@ -137,13 +137,13 @@ def process_commit(base_commit, update_commit):
     if base_commit not in os.listdir(dir_path):
         args = [str(base_commit), TMP_NAME]
         subprocess.run(  # noqa: S603
-            ["bash", "schema_api/scripts/checkout_commit.sh", *args], check=True
+            ["bash", "src/schema_api/scripts/checkout_commit.sh", *args], check=True
         )
 
     # Update commit will always be new
     args = [str(update_commit), TMP_NAME]
     output = subprocess.run(  # noqa: S603
-        ["bash", "schema_api/scripts/checkout_commit.sh", *args],
+        ["bash", "src/schema_api/scripts/checkout_commit.sh", *args],
         check=True,
         capture_output=True,
         text=True,
@@ -169,7 +169,6 @@ def process_commit(base_commit, update_commit):
                 f"Adding {len(db_updates)} changelog update(s) for dataset {ds.id} to database..."
             )
             for update in db_updates:
-
                 # Add commit hash and commit timestamp
                 update["commit_hash"] = update_commit
                 update["committed_at"] = date_time
@@ -235,7 +234,6 @@ def extract_diffs_for_dataset(diffs: dict[str:list], update_ds: DatasetSchema) -
 
         # *** UPDATE TABLE UPDATE ***
         if "tables" in field_list and field_list[-1] == "version":
-
             # Only handle minor table updates
             version_update = modifications[field]
             old_v = SemVer(version_update["old_value"])
