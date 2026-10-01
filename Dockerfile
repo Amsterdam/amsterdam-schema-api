@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:0.11-python3.14-trixie-slim AS builder
+FROM ghcr.io/astral-sh/uv:0.12-python3.14-trixie-slim AS builder
 
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
@@ -14,7 +14,7 @@ COPY . ./
 
 RUN uv sync --frozen --no-install-project --all-groups
 
-FROM ghcr.io/astral-sh/uv:0.11-python3.14-trixie-slim
+FROM ghcr.io/astral-sh/uv:0.12-python3.14-trixie-slim
 
 RUN groupadd --system --gid 999  schemaapi  && useradd --system --gid 999 \
     --uid 1001 --create-home schemaapi
