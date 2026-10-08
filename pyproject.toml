@@ -10,7 +10,7 @@ author_email = "datapunt@amsterdam.nl"
 
 dependencies = [
     "amsterdam-schema-tools[django]==9.14.1",
-    "azure-identity == 1.25.3",
+    "azure-identity==1.26.0",
     "azure-monitor-opentelemetry==1.8.10",
     "django>=5.2.16,<6.0",
     "django-cors-headers==4.9.0",
@@ -39,7 +39,7 @@ dev = [
     "pur==7.4.0",
     "setuptools==84.0.0",
     "pre-commit==4.6.2",
-    "ruff==0.16.9",
+    "ruff==0.16.10",
     "django-extensions==4.1",
     "pytest-sugar==1.1.1",
     "termcolor==3.3.0",
