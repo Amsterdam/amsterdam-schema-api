@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import tempfile
 from datetime import datetime, timezone
+from pathlib import Path
 
 from django.core.management import BaseCommand
 from django.db.utils import IntegrityError
@@ -17,6 +18,9 @@ TMP_DIR = tempfile.TemporaryDirectory()
 TMP_NAME = TMP_DIR.name
 CHANGES_DIR = f"{TMP_NAME}/changes/"
 START_COMMIT = "c2e69fd322e3465b3c234949336288f8a0ee2ec7"
+SCRIPTS_DIR = Path(__file__).resolve().parents[2] / "scripts"
+CLONE_SCRIPT = SCRIPTS_DIR / "clone_ams_schema.sh"
+CHECKOUT_SCRIPT = SCRIPTS_DIR / "checkout_commit.sh"
 
 
 class Command(BaseCommand):
@@ -48,7 +52,7 @@ class Command(BaseCommand):
             subprocess.run(  # noqa: S603
                 [
                     "bash",
-                    "src/schema_api/scripts/clone_ams_schema.sh",
+                    str(CLONE_SCRIPT),
                     start_commit,
                     end_commit,
                     TMP_NAME,
@@ -58,8 +62,7 @@ class Command(BaseCommand):
 
             # Write updates to Changelog table
             extend_changelog_table()
-        except subprocess.CalledProcessError as e:
-            print(e.with_traceback())
+        except subprocess.CalledProcessError:
             self.stdout.write(
                 "Something went wrong in clone_ams_schema.sh or checkout_{base/update}_commit.sh, "
                 "tmp folder will be removed. Please run ./manage.py changelog again. "
@@ -137,13 +140,13 @@ def process_commit(base_commit, update_commit):
     if base_commit not in os.listdir(dir_path):
         args = [str(base_commit), TMP_NAME]
         subprocess.run(  # noqa: S603
-            ["bash", "src/schema_api/scripts/checkout_commit.sh", *args], check=True
+            ["bash", str(CHECKOUT_SCRIPT), *args], check=True
         )
 
     # Update commit will always be new
     args = [str(update_commit), TMP_NAME]
     output = subprocess.run(  # noqa: S603
-        ["bash", "src/schema_api/scripts/checkout_commit.sh", *args],
+        ["bash", str(CHECKOUT_SCRIPT), *args],
         check=True,
         capture_output=True,
         text=True,
